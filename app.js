@@ -108,6 +108,13 @@ const fishSchool=new THREE.Group();fishSchool.position.set(0,-21,-5);world.add(f
 const fishGeo=new THREE.BufferGeometry();fishGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.34,0,0,.12,.13,0,.12,-.13,0,.12,0,0,.38,.18,0,.38,-.18,0],3));fishGeo.setIndex([0,1,2,3,4,5]);
 const fishMat=new THREE.MeshBasicMaterial({color:0x6aa5aa,transparent:true,opacity:.42,side:THREE.DoubleSide,depthWrite:false});
 for(let i=0;i<26;i++){const f=new THREE.Mesh(fishGeo,fishMat.clone());f.position.set((Math.random()-.5)*28,(Math.random()-.5)*10,(Math.random()-.5)*18);f.scale.setScalar(.45+Math.random()*1.2);f.userData.speed=.45+Math.random()*.7;f.userData.phase=Math.random()*6.28;fishSchool.add(f)}
+// Bioluminescent deep-water field: restrained until the camera reaches the deeper section.
+const bioGeo=new THREE.BufferGeometry(),bioCount=180,bioPos=new Float32Array(bioCount*3);
+for(let i=0;i<bioCount;i++){bioPos[i*3]=(Math.random()-.5)*34;bioPos[i*3+1]=-12-Math.random()*20;bioPos[i*3+2]=(Math.random()-.5)*24}
+bioGeo.setAttribute('position',new THREE.BufferAttribute(bioPos,3));
+const biolume=new THREE.Points(bioGeo,new THREE.PointsMaterial({color:0x6fffe8,size:.045,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));world.add(biolume);
+// Research light behaves like a real scene light rather than only a DOM state.
+const researchLight=new THREE.SpotLight(0xb9ffff,0,42,Math.PI*.16,.55,1.4);researchLight.position.set(1,-18,8);researchLight.target.position.set(0,-27,0);world.add(researchLight,researchLight.target);
 const scanRing=new THREE.Mesh(new THREE.TorusGeometry(4.8,.018,8,180),new THREE.MeshBasicMaterial({color:0x75edf0,transparent:true,opacity:.0}));scanRing.rotation.x=Math.PI/2;reef.add(scanRing);
 
 const sections=[...document.querySelectorAll('[data-scene]')];
@@ -136,7 +143,9 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
  reef.rotation.y=Math.sin(time*.13)*.025;
  const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
- const rv=progress>.57&&progress<.84;researchVision.visible=rv;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i})}
+ const rv=progress>.57&&progress<.84;researchVision.visible=rv;
+ const deep=smoothstep(.34,.52,progress)*(1-smoothstep(.72,.84,progress));biolume.material.opacity=.04+deep*.36;biolume.rotation.y=time*.012;biolume.position.y=Math.sin(time*.18)*.22;
+ researchLight.intensity=rv?38:deep*7;researchLight.position.x=Math.sin(time*.23)*4;researchLight.position.z=7+Math.cos(time*.19)*2;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i})}
 
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  if(earth.visible){earthHalo.material.opacity=.7+.12*Math.sin(time*.25);sun.intensity=3.2+.25*Math.sin(time*.12)}
