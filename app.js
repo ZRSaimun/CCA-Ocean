@@ -29,6 +29,24 @@ const rim=new THREE.PointLight(0x2ab2ce,35,50);rim.position.set(-8,-1,7);scene.a
 
 const world=new THREE.Group();scene.add(world);const QualityManager={mode:'auto',frames:0,last:performance.now(),fps:60,active:'balanced',levels:{cinematic:{ratio:2,particles:true,shafts:true},balanced:{ratio:1.5,particles:true,shafts:true},efficient:{ratio:1,particles:false,shafts:false}},apply(level){this.active=level;const q=this.levels[level];renderer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));renderer.setSize(innerWidth,innerHeight,false);composer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));composer.setSize(innerWidth,innerHeight);document.body.dataset.quality=level;if(typeof particles!=='undefined')particles.visible=q.particles;if(typeof shafts!=='undefined')shafts.visible=q.shafts;const b=document.querySelector('#qualityToggle');if(b)b.textContent='QUALITY · '+(this.mode==='auto'?'AUTO / ':'')+level.toUpperCase()},tick(now){if(this.mode!=='auto')return;this.frames++;if(now-this.last>2500){this.fps=this.frames*1000/(now-this.last);this.frames=0;this.last=now;if(this.fps<42&&this.active!=='efficient')this.apply(this.active==='cinematic'?'balanced':'efficient');else if(this.fps>57&&this.active==='balanced')this.apply('cinematic')}}};
 
+
+// One rendering-quality authority: Auto adapts by FPS; manual modes remain stable.
+const qualityToggle=document.querySelector('#qualityToggle');
+const qualityOrder=['auto','cinematic','balanced','efficient'];
+function setQualityMode(mode){
+  QualityManager.mode=mode;
+  if(mode==='auto'){ QualityManager.apply('balanced'); }
+  else QualityManager.apply(mode);
+  localStorage.setItem('cca-ocean-quality-mode',mode);
+}
+qualityToggle?.addEventListener('click',()=>{
+  const current=qualityOrder.indexOf(QualityManager.mode);
+  setQualityMode(qualityOrder[(current+1)%qualityOrder.length]);
+});
+setQualityMode(localStorage.getItem('cca-ocean-quality-mode')||'auto');
+let pageVisible=!document.hidden;
+document.addEventListener('visibilitychange',()=>{pageVisible=!document.hidden; if(pageVisible){QualityManager.last=performance.now();QualityManager.frames=0;}});
+
 const earth=new THREE.Group();world.add(earth);
 const textureLoader=new THREE.TextureLoader();
 const earthTexture=textureLoader.load('https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-base/january/world.200401.3x5400x2700.jpg');
@@ -142,7 +160,7 @@ function updateCamera(p){
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
 }
 
-function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);const submerged=progress>.285&&progress<.88;document.body.classList.toggle('is-submerged',submerged);document.body.classList.toggle('research-vision-active',progress>.57&&progress<.84);
+function animate(t){requestAnimationFrame(animate);if(pageVisible) QualityManager.tick(t);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);const submerged=progress>.285&&progress<.88;document.body.classList.toggle('is-submerged',submerged);document.body.classList.toggle('research-vision-active',progress>.57&&progress<.84);
  const waterDepth=submerged?THREE.MathUtils.clamp((-camera.position.y-6)/22,0,1):0,targetFog=submerged?lerp(.019,.043,waterDepth):.015;
  scene.fog.density=lerp(scene.fog.density,targetFog,.04);scene.fog.color.lerp(submerged?(waterDepth>.48?deepWaterColor:shallowWaterColor):surfaceFogColor,.04);scene.background.lerp(submerged?(waterDepth>.5?deepWaterColor:shallowWaterColor):spaceColor,.025);
  ambient.intensity=lerp(ambient.intensity,submerged?lerp(1.0,.42,waterDepth):1.3,.04);key.intensity=lerp(key.intensity,submerged?lerp(1.5,.38,waterDepth):2.2,.04);rim.intensity=lerp(rim.intensity,submerged?lerp(30,16,waterDepth):35,.04);
@@ -333,17 +351,6 @@ if(boundarySlider&&boundarySharp)boundarySlider.addEventListener('input',()=>bou
   }
  }catch(e){status.textContent='MANIFEST UNAVAILABLE';note.textContent='The website could not load the research manifest. No experiment claims are inferred.'}
 })();
-
-// User-selectable rendering intent. WebGL pixel ratio is adjusted when the renderer is available.
-document.querySelectorAll('.quality-btn').forEach(btn=>btn.addEventListener('click',()=>{
- const q=btn.dataset.quality;document.body.classList.remove('quality-balanced','quality-battery');if(q!=='cinematic')document.body.classList.add('quality-'+q);
- document.querySelectorAll('.quality-btn').forEach(x=>x.classList.toggle('is-active',x===btn));
- try{renderer.setPixelRatio(Math.min(window.devicePixelRatio,q==='cinematic'?2:q==='balanced'?1.35:1));}catch(e){}
- localStorage.setItem('cca-ocean-quality',q);
-}));
-const savedQuality=localStorage.getItem('cca-ocean-quality');
-if(savedQuality)document.querySelector('.quality-btn[data-quality="'+savedQuality+'"]')?.click();
-
 
 // V3 Reef Survey Mission
 const missionData=[
