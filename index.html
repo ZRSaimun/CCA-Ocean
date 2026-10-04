@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#02070c" />
+  <meta name="description" content="CCA Ocean — a cinematic WebGL exploration of our oceans, coral reef ecosystems and AI-powered underwater vision." />
+  <title>CCA Ocean — Planet · Ocean · Reef · Vision</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="loader" class="loader">
+    <div class="loader__orb"></div>
+    <p>INITIALISING OCEAN SYSTEM</p>
+  </div>
+
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="CCA Ocean home">
+      <span class="brand__mark"></span>
+      <span>CCA OCEAN</span>
+    </a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#planet">Planet</a>
+      <a href="#ocean">Ocean</a>
+      <a href="#reef">Reef</a>
+      <a href="#vision">Vision</a>
+      <a href="#research">Research</a>
+    </nav>
+    <button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button>
+  </header>
+
+  <aside class="progress" aria-label="Experience progress">
+    <span id="progressFill"></span>
+  </aside>
+
+  <main id="top">
+    <section id="planet" class="chapter hero" data-scene="space">
+      <div class="eyebrow">PLANETARY OCEAN SYSTEM · 01</div>
+      <h1>Most of our world<br><span>moves in blue.</span></h1>
+      <p class="lede">A cinematic journey from the whole planet to the boundary of a single coral colony — and into the machine vision used to observe it.</p>
+      <a class="cta" href="#ocean">Descend into the ocean <span>↓</span></a>
+      <div class="coordinates">EARTH / HYDROSPHERE / LIVE VISUAL SIMULATION</div>
+    </section>
+
+    <section id="ocean" class="chapter chapter--right" data-scene="surface">
+      <div class="panel">
+        <div class="eyebrow">THE OCEAN · 02</div>
+        <h2>The planetary engine we rarely see.</h2>
+        <p>Oceans shape climate, move heat, exchange gases, support immense biodiversity and connect ecosystems across the planet. Here, the website itself behaves like an ocean: fluid, layered and constantly in motion.</p>
+        <div class="signal-row">
+          <span>CLIMATE</span><span>BIODIVERSITY</span><span>CARBON</span><span>FOOD SYSTEMS</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter chapter--deep" data-scene="descent">
+      <div class="depth-readout">
+        <div class="depth-number"><span id="depthValue">0</span> m</div>
+        <div class="depth-label">SIMULATED DESCENT</div>
+      </div>
+      <div class="panel panel--minimal">
+        <div class="eyebrow">BELOW THE SURFACE · 03</div>
+        <h2>Light disappears.<br>Information degrades.</h2>
+        <p>As depth increases, underwater imagery becomes harder to interpret: colour shifts, contrast falls, blur increases and visually similar classes become difficult to separate.</p>
+      </div>
+    </section>
+
+    <section id="reef" class="chapter" data-scene="reef">
+      <div class="panel">
+        <div class="eyebrow">CORAL REEF · 04</div>
+        <h2>A living structure at the edge of perception.</h2>
+        <p>Fine-grained reef monitoring depends on more than detecting “coral”. Similar coral types can share texture, shape and colour, while boundaries may dissolve into water, sediment and neighbouring colonies.</p>
+        <div class="reef-legend">
+          <span><i class="dot dot--coral"></i> coral structure</span>
+          <span><i class="dot dot--edge"></i> boundary signal</span>
+          <span><i class="dot dot--water"></i> water column</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="vision" class="chapter chapter--right" data-scene="vision">
+      <div class="panel panel--wide">
+        <div class="eyebrow">UNDERWATER COMPUTER VISION · 05</div>
+        <h2>Teach the system to see what water hides.</h2>
+        <p>The research direction behind CCA Ocean focuses on colour consistency, boundary preservation and fine-grained semantic segmentation for underwater coral imagery.</p>
+
+        <div class="vision-demo" id="visionDemo">
+          <div class="demo-header"><span>EXPLANATORY VISUALISATION</span><span id="demoLabel">RAW UNDERWATER FRAME</span></div>
+          <div class="demo-stage">
+            <div class="demo-before"></div>
+            <div class="demo-after"></div>
+            <div class="demo-divider" id="demoDivider"></div>
+            <div class="segmentation" id="segmentation"></div>
+          </div>
+          <input id="visionSlider" type="range" min="0" max="100" value="36" aria-label="Compare raw underwater colour with normalised view" />
+          <div class="demo-actions">
+            <button id="colourMode" type="button" class="chip chip--active">COLOUR NORMALISATION</button>
+            <button id="maskMode" type="button" class="chip">SEGMENTATION OVERLAY</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter pipeline" data-scene="pipeline">
+      <div class="panel panel--wide">
+        <div class="eyebrow">CCA-NET PIPELINE · 06</div>
+        <h2>From distorted frame to structured interpretation.</h2>
+        <div class="pipeline-grid">
+          <article><b>01</b><h3>UCN</h3><p>Underwater Colour Normalization</p></article>
+          <article><b>02</b><h3>MiT-B2</h3><p>SegFormer feature backbone</p></article>
+          <article><b>03</b><h3>BAR</h3><p>Boundary-Aware Refinement</p></article>
+          <article><b>04</b><h3>COARSE</h3><p>Hierarchical supervision branch</p></article>
+          <article><b>05</b><h3>LOSS</h3><p>CE · Dice · Boundary BCE · Coarse</p></article>
+        </div>
+        <p class="note">The graphics on this site explain the architecture conceptually. They are not live model inference.</p>
+      </div>
+    </section>
+
+    <section id="research" class="chapter chapter--research" data-scene="research">
+      <div class="paper-card">
+        <div class="eyebrow">RESEARCH ANCHOR · 07</div>
+        <h2>A Colour-Constancy and Boundary-Aware Multi-Task Network for Fine-Grained Underwater Coral Reef Semantic Segmentation</h2>
+        <p class="authors">Md Zillur Rahman Saimon · Pravallika Kondapalli · Sourav Das Polok · Muhammad Aumlanul Abrar</p>
+        <div class="metrics">
+          <div><strong>82.80%</strong><span>reported accuracy</span></div>
+          <div><strong>58.0%</strong><span>reported mIoU</span></div>
+        </div>
+        <p>The abstract reports evaluation on CoralScapes against UNet++, DeepLabV3+, SegFormer and the SegFormer MiT-B2 baseline. It reports improved boundary detection and segmentation of visually similar coral types, with ablation evidence supporting UCN, BAR and hierarchical supervision.</p>
+        <p class="note">This work is positioned as a monitoring and analysis tool. It does not directly stop bleaching, pollution or climate change; it aims to improve how underwater reef imagery can be interpreted.</p>
+      </div>
+    </section>
+
+    <section class="chapter finale" data-scene="finale">
+      <div class="finale-copy">
+        <div class="eyebrow">RETURN TO SCALE · 08</div>
+        <h2>One reef.<br>One ocean.<br>One connected planet.</h2>
+        <p>Observation becomes useful when it moves between scales — from pixels, to organisms, to ecosystems, to the planet that contains them.</p>
+        <a class="cta" href="#top">Return to orbit <span>↑</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>CCA OCEAN</span>
+    <span>CINEMATIC WEBGL RESEARCH EXPERIENCE</span>
+    <a href="https://github.com/ZRSaimun/CCA-Ocean" target="_blank" rel="noreferrer">GITHUB ↗</a>
+  </footer>
+
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}
+  </script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
