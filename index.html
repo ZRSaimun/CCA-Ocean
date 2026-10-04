@@ -27,6 +27,8 @@
   <canvas id="scene" aria-hidden="true"></canvas>
   <div class="grain" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
+  <div class="dive-transition" id="diveTransition" aria-hidden="true"><div class="dive-transition__surface"></div><div class="dive-transition__depth"></div></div>
+  <div class="vision-mode" id="visionMode" aria-hidden="true"><span>CCA-NET / RESEARCH VISION</span><i></i><b>SPATIAL ANALYSIS</b></div>
 
   <header class="topbar">
     <a class="brand" href="#top" aria-label="CCA Ocean home">
@@ -40,7 +42,7 @@
       <a href="#vision">Vision</a>
       <a href="#research">Research</a>
     </nav>
-    <button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button>
+    <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality">QUALITY · AUTO</button><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
   </header>
 
   <aside class="progress" aria-label="Experience progress">
