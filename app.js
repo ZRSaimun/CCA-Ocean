@@ -116,6 +116,10 @@ bioGeo.setAttribute('position',new THREE.BufferAttribute(bioPos,3));
 const biolume=new THREE.Points(bioGeo,new THREE.PointsMaterial({color:0x6fffe8,size:.045,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));world.add(biolume);
 // Research light behaves like a real scene light rather than only a DOM state.
 const researchLight=new THREE.SpotLight(0xb9ffff,0,42,Math.PI*.16,.55,1.4);researchLight.position.set(1,-18,8);researchLight.target.position.set(0,-27,0);world.add(researchLight,researchLight.target);
+// Semantic volumes turn the research scan into a spatial explanation of segmented reef regions.
+const semanticLayer=new THREE.Group();researchVision.add(semanticLayer);
+const semanticColors=[0x64e8df,0xf2c879,0xd98e79,0x8bb7ff];
+for(let i=0;i<14;i++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(.35+Math.random()*.65,1),new THREE.MeshBasicMaterial({color:semanticColors[i%semanticColors.length],transparent:true,opacity:0,wireframe:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.position.set((Math.random()-.5)*13,.5+Math.random()*3.4,(Math.random()-.5)*7);m.scale.y=.55+Math.random()*.7;semanticLayer.add(m)}
 const scanRing=new THREE.Mesh(new THREE.TorusGeometry(4.8,.018,8,180),new THREE.MeshBasicMaterial({color:0x75edf0,transparent:true,opacity:.0}));scanRing.rotation.x=Math.PI/2;reef.add(scanRing);
 
 const sections=[...document.querySelectorAll('[data-scene]')];
@@ -150,7 +154,7 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
  const rv=progress>.57&&progress<.84;researchVision.visible=rv;
  const deep=smoothstep(.34,.52,progress)*(1-smoothstep(.72,.84,progress));biolume.material.opacity=.04+deep*.36;biolume.rotation.y=time*.012;biolume.position.y=Math.sin(time*.18)*.22;
- researchLight.intensity=rv?38:deep*7;researchLight.position.x=Math.sin(time*.23)*4;researchLight.position.z=7+Math.cos(time*.19)*2;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i})}
+ researchLight.intensity=rv?38:deep*7;researchLight.position.x=Math.sin(time*.23)*4;researchLight.position.z=7+Math.cos(time*.19)*2;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i});semanticLayer.children.forEach((m,i)=>{const passed=scanPlane.position.x>m.position.x;m.material.opacity=passed?.12+.12*(.5+.5*Math.sin(time*1.6+i)):0;m.rotation.y=time*.08+i*.2})}
 
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  if(earth.visible){earthHalo.material.opacity=.7+.12*Math.sin(time*.25);sun.intensity=3.2+.25*Math.sin(time*.12)}
