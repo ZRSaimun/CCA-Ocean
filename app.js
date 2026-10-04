@@ -254,3 +254,41 @@ if(lab){
  };
  document.querySelector('#labPrev')?.addEventListener('click',()=>render(n-1));document.querySelector('#labNext')?.addEventListener('click',()=>render(n+1));dots.forEach((d,i)=>d.addEventListener('click',()=>render(i)));render(0);
 }
+
+
+// CCA-Net Vision Lab — explanatory interaction, not live inference.
+const labView=document.querySelector('#labView');
+const labState=document.querySelector('#labState');
+const labExplanation=document.querySelector('#labExplanation');
+const labProgress=document.querySelector('#labProgress');
+const labSteps=[...document.querySelectorAll('.lab-step')];
+const stageInfo={
+ ucn:['COLOUR NORMALISED','UCN addresses underwater colour inconsistency before semantic analysis, producing a more stable visual input for the network.'],
+ features:['MULTI-SCALE FEATURES','SegFormer MiT-B2 acts as the encoder, extracting hierarchical visual features from the normalised underwater frame.'],
+ bar:['BOUNDARY AWARENESS','The BAR decoder is designed to produce semantic masks while preserving boundary information important for fine-grained coral regions.'],
+ coarse:['HIERARCHICAL SUPERVISION','A coarse semantic branch adds hierarchical supervision alongside the fine-grained segmentation objective.'],
+ mask:['SEMANTIC OUTPUT','The research pipeline combines its objectives toward fine-grained coral reef semantic segmentation. This display is illustrative, not a prediction from a running model.']
+};
+function setLabStage(stage,index){
+ if(!labView)return;
+ labView.className='lab-view is-normalised stage-'+stage;
+ labView.classList.add('is-running');setTimeout(()=>labView.classList.remove('is-running'),1100);
+ labSteps.forEach((s,i)=>{s.classList.toggle('is-active',i===index);s.querySelector('i').textContent=i<index?'DONE':i===index?'ACTIVE':'READY'});
+ labState.textContent=stageInfo[stage][0];labExplanation.textContent=stageInfo[stage][1];labProgress.textContent=String(index+1).padStart(2,'0')+' / 05';
+ document.querySelectorAll('.lab-toggle').forEach(x=>x.classList.toggle('is-active',x.dataset.labView==='normalised'));
+}
+document.querySelectorAll('.lab-toggle').forEach(btn=>btn.addEventListener('click',()=>{
+ const normal=btn.dataset.labView==='normalised';
+ labView.className='lab-view'+(normal?' is-normalised':'');
+ labState.textContent=normal?'COLOUR NORMALISED':'RAW UNDERWATER';
+ labExplanation.textContent=normal?'A simulated normalised state illustrates the colour-consistency problem addressed by the UCN component.':'The raw state represents common underwater visual challenges such as colour shift and reduced contrast.';
+ document.querySelectorAll('.lab-toggle').forEach(x=>x.classList.toggle('is-active',x===btn));labSteps.forEach(x=>x.classList.remove('is-active'));labProgress.textContent='00 / 05';
+}));
+labSteps.forEach((btn,i)=>btn.addEventListener('click',()=>setLabStage(btn.dataset.stage,i)));
+const runPipeline=document.querySelector('#runPipeline');
+let pipelineTimers=[];
+if(runPipeline)runPipeline.addEventListener('click',()=>{
+ pipelineTimers.forEach(clearTimeout);pipelineTimers=[];
+ const stages=['ucn','features','bar','coarse','mask'];
+ stages.forEach((stage,i)=>pipelineTimers.push(setTimeout(()=>setLabStage(stage,i),i*1350)));
+});
