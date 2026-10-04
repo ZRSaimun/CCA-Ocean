@@ -102,3 +102,18 @@ if(scanButton)scanButton.addEventListener('click',()=>{
 });
 const chapterObserver=new IntersectionObserver(entries=>entries.forEach(e=>e.target.classList.toggle('is-near',e.isIntersecting)),{threshold:.35});
 document.querySelectorAll('.chapter').forEach(x=>chapterObserver.observe(x));
+
+
+// Deep-ocean two-state research light.
+const deepLightStage=document.querySelector('#deepLightStage');
+const deepLightToggle=document.querySelector('#deepLightToggle');
+if(deepLightStage&&deepLightToggle){
+ const state=document.querySelector('#lightState'),caption=document.querySelector('#lightCaption');
+ deepLightToggle.addEventListener('click',()=>{
+   const on=deepLightToggle.getAttribute('aria-pressed')==='true';
+   deepLightToggle.setAttribute('aria-pressed',String(!on));
+   deepLightStage.classList.toggle('lights-on',!on);
+   state.textContent=!on?'ILLUMINATED STATE':'LOW-LIGHT STATE';
+   caption.textContent=!on?'Research light · revealed structure · stronger colour information':'Ambient visibility · silhouettes · low colour information';
+ });
+}
