@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const canvas=document.querySelector('#scene');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -7,18 +11,20 @@ renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.05;
+const composer=new EffectComposer(renderer);
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x02070c);
 scene.fog=new THREE.FogExp2(0x031018,.015);
 const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,2000);
 camera.position.set(0,0,13);
+const renderPass=new RenderPass(scene,camera),bloomPass=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.28,.7,.86),outputPass=new OutputPass();composer.addPass(renderPass);composer.addPass(bloomPass);composer.addPass(outputPass);
 
 const ambient=new THREE.HemisphereLight(0x9ce6ef,0x061016,1.3);scene.add(ambient);
 const key=new THREE.DirectionalLight(0xd9f7ff,2.2);key.position.set(8,5,10);scene.add(key);
 const rim=new THREE.PointLight(0x2ab2ce,35,50);rim.position.set(-8,-1,7);scene.add(rim);
 
-const world=new THREE.Group();scene.add(world);const QualityManager={mode:'auto',frames:0,last:performance.now(),fps:60,active:'balanced',levels:{cinematic:{ratio:2,particles:true,shafts:true},balanced:{ratio:1.5,particles:true,shafts:true},efficient:{ratio:1,particles:false,shafts:false}},apply(level){this.active=level;const q=this.levels[level];renderer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));renderer.setSize(innerWidth,innerHeight,false);document.body.dataset.quality=level;if(typeof particles!=='undefined')particles.visible=q.particles;if(typeof shafts!=='undefined')shafts.visible=q.shafts;const b=document.querySelector('#qualityToggle');if(b)b.textContent='QUALITY · '+(this.mode==='auto'?'AUTO / ':'')+level.toUpperCase()},tick(now){if(this.mode!=='auto')return;this.frames++;if(now-this.last>2500){this.fps=this.frames*1000/(now-this.last);this.frames=0;this.last=now;if(this.fps<42&&this.active!=='efficient')this.apply(this.active==='cinematic'?'balanced':'efficient');else if(this.fps>57&&this.active==='balanced')this.apply('cinematic')}}};
+const world=new THREE.Group();scene.add(world);const QualityManager={mode:'auto',frames:0,last:performance.now(),fps:60,active:'balanced',levels:{cinematic:{ratio:2,particles:true,shafts:true},balanced:{ratio:1.5,particles:true,shafts:true},efficient:{ratio:1,particles:false,shafts:false}},apply(level){this.active=level;const q=this.levels[level];renderer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));renderer.setSize(innerWidth,innerHeight,false);composer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));composer.setSize(innerWidth,innerHeight);document.body.dataset.quality=level;if(typeof particles!=='undefined')particles.visible=q.particles;if(typeof shafts!=='undefined')shafts.visible=q.shafts;const b=document.querySelector('#qualityToggle');if(b)b.textContent='QUALITY · '+(this.mode==='auto'?'AUTO / ':'')+level.toUpperCase()},tick(now){if(this.mode!=='auto')return;this.frames++;if(now-this.last>2500){this.fps=this.frames*1000/(now-this.last);this.frames=0;this.last=now;if(this.fps<42&&this.active!=='efficient')this.apply(this.active==='cinematic'?'balanced':'efficient');else if(this.fps>57&&this.active==='balanced')this.apply('cinematic')}}};
 
 const earth=new THREE.Group();world.add(earth);
 const textureLoader=new THREE.TextureLoader();
@@ -124,10 +130,10 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  if(earth.visible){earthHalo.material.opacity=.7+.12*Math.sin(time*.25);sun.intensity=3.2+.25*Math.sin(time*.12)}
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
  const depth=Math.round(Math.max(0,Math.min(34,(progress-.28)*120)));document.querySelector('#depthValue').textContent=depth;
- renderer.render(scene,camera)}
+ bloomPass.strength=submerged?.34:.2;composer.render()}
 requestAnimationFrame(animate);
 
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});const qualityButton=document.querySelector('#qualityToggle');if(qualityButton){const order=['cinematic','balanced','efficient'];qualityButton.addEventListener('click',()=>{QualityManager.mode='manual';QualityManager.apply(order[(order.indexOf(QualityManager.active)+1)%order.length])});QualityManager.apply(matchMedia('(max-width: 800px)').matches?'efficient':'balanced');}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight)});const qualityButton=document.querySelector('#qualityToggle');if(qualityButton){const order=['cinematic','balanced','efficient'];qualityButton.addEventListener('click',()=>{QualityManager.mode='manual';QualityManager.apply(order[(order.indexOf(QualityManager.active)+1)%order.length])});QualityManager.apply(matchMedia('(max-width: 800px)').matches?'efficient':'balanced');}
 
 const slider=document.querySelector('#visionSlider'),divider=document.querySelector('#demoDivider'),after=document.querySelector('.demo-after'),demo=document.querySelector('#visionDemo'),label=document.querySelector('#demoLabel');
 slider.addEventListener('input',e=>{const v=e.target.value;divider.style.left=`${v}%`;after.style.clipPath=`inset(0 0 0 ${v}%)`});
