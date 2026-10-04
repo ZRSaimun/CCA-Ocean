@@ -316,3 +316,30 @@ const enhanceText={raw:'SIMULATED RAW UNDERWATER VIEW',pretty:'PERCEPTUAL ENHANC
 document.querySelectorAll('.enhance-state').forEach(btn=>btn.addEventListener('click',()=>{enhanceVisual.className='enhance-visual '+btn.dataset.enhance;enhanceCaption.textContent=enhanceText[btn.dataset.enhance];document.querySelectorAll('.enhance-state').forEach(x=>x.classList.toggle('is-active',x===btn))}));
 const boundarySlider=document.querySelector('#boundarySlider'),boundarySharp=document.querySelector('#boundarySharp');
 if(boundarySlider&&boundarySharp)boundarySlider.addEventListener('input',()=>boundarySharp.style.clipPath='inset(0 0 0 '+boundarySlider.value+'%)');
+
+
+// Provenance-first research evidence loader.
+(async()=>{
+ const status=document.querySelector('#evidenceStatus'),note=document.querySelector('#evidenceNote'),count=document.querySelector('#failureCount'),body=document.querySelector('#failureBody');
+ if(!status)return;
+ try{
+  const res=await fetch('./data/research-manifest.json',{cache:'no-store'}); if(!res.ok)throw new Error('manifest unavailable');
+  const data=await res.json(), failures=data.assets?.failures||[];
+  status.textContent=data.metrics?.status==='experiment-export'?'EXPERIMENT EXPORT CONNECTED':'PAPER METRICS / NO INFERENCE EXPORT';
+  note.textContent=data.metrics?.note||'Research manifest loaded. Provenance labels distinguish reported metrics from generated experiment artifacts.';
+  count.textContent=failures.length+' REAL CASE'+(failures.length===1?'':'S');
+  if(failures.length){
+   body.className='failure-gallery';body.innerHTML=failures.slice(0,6).map((src,i)=>'<figure><img src="./'+src+'" alt="CCA-Net experiment failure case '+(i+1)+'"><figcaption>REAL EXPERIMENT ARTIFACT · CASE '+String(i+1).padStart(2,'0')+'</figcaption></figure>').join('');
+  }
+ }catch(e){status.textContent='MANIFEST UNAVAILABLE';note.textContent='The website could not load the research manifest. No experiment claims are inferred.'}
+})();
+
+// User-selectable rendering intent. WebGL pixel ratio is adjusted when the renderer is available.
+document.querySelectorAll('.quality-btn').forEach(btn=>btn.addEventListener('click',()=>{
+ const q=btn.dataset.quality;document.body.classList.remove('quality-balanced','quality-battery');if(q!=='cinematic')document.body.classList.add('quality-'+q);
+ document.querySelectorAll('.quality-btn').forEach(x=>x.classList.toggle('is-active',x===btn));
+ try{renderer.setPixelRatio(Math.min(window.devicePixelRatio,q==='cinematic'?2:q==='balanced'?1.35:1));}catch(e){}
+ localStorage.setItem('cca-ocean-quality',q);
+}));
+const savedQuality=localStorage.getItem('cca-ocean-quality');
+if(savedQuality)document.querySelector('.quality-btn[data-quality="'+savedQuality+'"]')?.click();
