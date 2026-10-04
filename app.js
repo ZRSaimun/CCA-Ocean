@@ -1,0 +1,82 @@
+import * as THREE from 'three';
+
+const canvas=document.querySelector('#scene');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x02070c);
+scene.fog=new THREE.FogExp2(0x031018,.015);
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,2000);
+camera.position.set(0,0,13);
+
+const ambient=new THREE.HemisphereLight(0x9ce6ef,0x061016,1.3);scene.add(ambient);
+const key=new THREE.DirectionalLight(0xd9f7ff,2.2);key.position.set(8,5,10);scene.add(key);
+const rim=new THREE.PointLight(0x2ab2ce,35,50);rim.position.set(-8,-1,7);scene.add(rim);
+
+const world=new THREE.Group();scene.add(world);
+
+const earth=new THREE.Group();world.add(earth);
+const globe=new THREE.Mesh(new THREE.SphereGeometry(3.35,96,96),new THREE.MeshStandardMaterial({color:0x0d5d78,roughness:.48,metalness:.02,emissive:0x062b39,emissiveIntensity:.85}));earth.add(globe);
+const landMat=new THREE.MeshStandardMaterial({color:0x49745f,roughness:.95,emissive:0x132d24,emissiveIntensity:.4});
+[[.4,.7,2.92,.9,.48],[1.65,.2,2.63,.65,.9],[-1.3,.15,2.95,.85,.55],[-.3,-1.35,2.85,.6,.72],[1.2,-1.4,2.76,.46,.5]].forEach(([x,y,z,sx,sy])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.65,20,20,0,Math.PI*1.45,0,Math.PI/2),landMat);m.position.set(x,y,z);m.scale.set(sx,sy,.18);m.rotation.z=Math.random()*1.4;earth.add(m)});
+const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(3.48,64,64),new THREE.MeshBasicMaterial({color:0x65d8df,transparent:true,opacity:.07,side:THREE.BackSide}));earth.add(atmosphere);
+const wire=new THREE.Mesh(new THREE.SphereGeometry(3.58,32,16),new THREE.MeshBasicMaterial({color:0x79dce4,wireframe:true,transparent:true,opacity:.035}));earth.add(wire);
+
+const starsGeo=new THREE.BufferGeometry();const starCount=1500;const pos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){const r=80+Math.random()*600;const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.cos(p);pos[i*3+2]=r*Math.sin(p)*Math.sin(t)}starsGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x9ed6db,size:.18,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
+
+const ocean=new THREE.Mesh(new THREE.PlaneGeometry(70,70,120,120),new THREE.MeshStandardMaterial({color:0x063d52,roughness:.22,metalness:.18,transparent:true,opacity:.92,side:THREE.DoubleSide}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-6;world.add(ocean);
+const oceanBase=ocean.geometry.attributes.position.array.slice();
+
+const particlesGeo=new THREE.BufferGeometry();const count=900;const ppos=new Float32Array(count*3);for(let i=0;i<count;i++){ppos[i*3]=(Math.random()-.5)*42;ppos[i*3+1]=-8-Math.random()*30;ppos[i*3+2]=(Math.random()-.5)*32}particlesGeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));const particles=new THREE.Points(particlesGeo,new THREE.PointsMaterial({color:0x8cecf0,size:.035,transparent:true,opacity:.42}));world.add(particles);
+
+const reef=new THREE.Group();reef.position.set(0,-28,0);world.add(reef);
+const coralMat=new THREE.MeshStandardMaterial({color:0xc98265,roughness:.78,emissive:0x351916,emissiveIntensity:.35});const coralGold=new THREE.MeshStandardMaterial({color:0xc5a86d,roughness:.8,emissive:0x312513,emissiveIntensity:.3});
+function branch(parent,x,y,z,len,rad,depth,mat){const g=new THREE.Mesh(new THREE.CylinderGeometry(rad*.72,rad, len,8),mat);g.position.set(x,y+len/2,z);g.rotation.z=(Math.random()-.5)*.55;g.rotation.x=(Math.random()-.5)*.35;parent.add(g);if(depth>0){for(let i=0;i<2+(Math.random()>.55?1:0);i++){const tip=new THREE.Group();tip.position.set(x+(Math.random()-.5)*len*.28,y+len*.92,z+(Math.random()-.5)*len*.28);parent.add(tip);branch(tip,0,0,0,len*.64,rad*.7,depth-1,mat)}}}
+for(let i=0;i<18;i++){const g=new THREE.Group();g.position.set((Math.random()-.5)*16,0,(Math.random()-.5)*8);reef.add(g);branch(g,0,0,0,1.4+Math.random()*2,.16+Math.random()*.15,2,Math.random()>.45?coralMat:coralGold)}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60,40,40),new THREE.MeshStandardMaterial({color:0x0b2020,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.1;reef.add(floor);
+
+const scanRing=new THREE.Mesh(new THREE.TorusGeometry(4.8,.018,8,180),new THREE.MeshBasicMaterial({color:0x75edf0,transparent:true,opacity:.0}));scanRing.rotation.x=Math.PI/2;reef.add(scanRing);
+
+const sections=[...document.querySelectorAll('[data-scene]')];
+let scrollY=0,progress=0;
+function getSceneProgress(){const max=document.documentElement.scrollHeight-innerHeight;return max?scrollY/max:0}
+function smoothstep(a,b,x){const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)}
+function lerp(a,b,t){return a+(b-a)*t}
+
+function updateCamera(p){
+  const a=smoothstep(0,.17,p),b=smoothstep(.14,.34,p),c=smoothstep(.30,.50,p),d=smoothstep(.46,.67,p),e=smoothstep(.63,.82,p),f=smoothstep(.80,1,p);
+  if(p<.18){camera.position.set(lerp(0,2.4,a),lerp(.2,-.5,a),lerp(13,8.7,a));camera.lookAt(0,0,0);earth.position.set(lerp(2.2,.8,a),0,0)}
+  else if(p<.36){camera.position.set(lerp(2.4,0,b),lerp(-.5,-5,b),lerp(8.7,7,b));camera.lookAt(0,-5,0);earth.position.y=lerp(0,-11,b)}
+  else if(p<.54){camera.position.set(0,lerp(-5,-24,c),lerp(7,5,c));camera.lookAt(0,lerp(-8,-26,c),0);earth.position.y=-20}
+  else if(p<.72){camera.position.set(lerp(0,5,d),lerp(-24,-27,d),lerp(5,9,d));camera.lookAt(0,-26,0)}
+  else if(p<.88){camera.position.set(lerp(5,-3,e),lerp(-27,-24,e),lerp(9,6,e));camera.lookAt(0,-25,0)}
+  else{camera.position.set(lerp(-3,0,f),lerp(-24,0,f),lerp(6,16,f));camera.lookAt(0,lerp(-25,0,f),0);earth.position.set(0,0,0)}
+  const oceanVis=(p>.12&&p<.54)?1:0;ocean.material.opacity=lerp(ocean.material.opacity,oceanVis*.92,.08);
+  reef.visible=p>.34&&p<.93;
+  earth.visible=p<.28||p>.86;
+  scanRing.material.opacity=p>.56&&p<.74?.6:0;
+}
+
+function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.07;wire.rotation.y=-time*.025;stars.rotation.y=time*.003;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
+ const arr=ocean.geometry.attributes.position.array;for(let i=0;i<arr.length;i+=3){const x=oceanBase[i],y=oceanBase[i+1];arr[i+2]=Math.sin(x*.55+time*1.2)*.18+Math.cos(y*.42-time*.9)*.12}ocean.geometry.attributes.position.needsUpdate=true;ocean.geometry.computeVertexNormals();
+ particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
+ document.querySelector('#progressFill').style.height=`${progress*100}%`;
+ const depth=Math.round(Math.max(0,Math.min(34,(progress-.28)*120)));document.querySelector('#depthValue').textContent=depth;
+ renderer.render(scene,camera)}
+requestAnimationFrame(animate);
+
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+const slider=document.querySelector('#visionSlider'),divider=document.querySelector('#demoDivider'),after=document.querySelector('.demo-after'),demo=document.querySelector('#visionDemo'),label=document.querySelector('#demoLabel');
+slider.addEventListener('input',e=>{const v=e.target.value;divider.style.left=`${v}%`;after.style.clipPath=`inset(0 0 0 ${v}%)`});
+document.querySelector('#colourMode').addEventListener('click',()=>{demo.classList.remove('mask');label.textContent='RAW ↔ NORMALISED VIEW';document.querySelector('#colourMode').classList.add('chip--active');document.querySelector('#maskMode').classList.remove('chip--active')});
+document.querySelector('#maskMode').addEventListener('click',()=>{demo.classList.add('mask');label.textContent='STYLISED SEMANTIC OVERLAY';document.querySelector('#maskMode').classList.add('chip--active');document.querySelector('#colourMode').classList.remove('chip--active')});
+
+let audioCtx=null,osc=null,gain=null;document.querySelector('#soundToggle').addEventListener('click',async e=>{const on=e.currentTarget.getAttribute('aria-pressed')==='true';if(on){gain?.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.4);setTimeout(()=>{osc?.stop();osc=null},450);e.currentTarget.setAttribute('aria-pressed','false');e.currentTarget.textContent='SOUND OFF'}else{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();osc=audioCtx.createOscillator();gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=58;gain.gain.value=.0001;osc.connect(gain).connect(audioCtx.destination);osc.start();gain.gain.exponentialRampToValueAtTime(.018,audioCtx.currentTime+.8);e.currentTarget.setAttribute('aria-pressed','true');e.currentTarget.textContent='SOUND ON'}});
+
+window.addEventListener('load',()=>setTimeout(()=>document.querySelector('#loader').classList.add('is-hidden'),650));
