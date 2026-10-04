@@ -343,3 +343,28 @@ document.querySelectorAll('.quality-btn').forEach(btn=>btn.addEventListener('cli
 }));
 const savedQuality=localStorage.getItem('cca-ocean-quality');
 if(savedQuality)document.querySelector('.quality-btn[data-quality="'+savedQuality+'"]')?.click();
+
+
+// V3 Reef Survey Mission
+const missionData=[
+ ['CAMERA TRANSECT','Collect a repeatable visual survey along the reef.','08.4 M',5],
+ ['FRAME SELECTION','Inspect imagery captured along the transect.','09.1 M',25],
+ ['SEMANTIC INTERPRETATION','Apply the segmentation stage; this website view remains explanatory unless real inference artifacts are connected.','10.3 M',48],
+ ['SPATIAL MAPPING','Relate interpreted observations back to reef space.','11.0 M',72],
+ ['REPEAT SURVEY','Compare observations through time to support change analysis.','09.7 M',94]
+];
+document.querySelectorAll('[data-mission]').forEach(btn=>btn.addEventListener('click',()=>{
+ const i=+btn.dataset.mission,d=missionData[i];document.querySelector('#missionState').textContent=d[0];document.querySelector('#missionCopy').textContent=d[1];document.querySelector('#missionDepth').textContent=d[2];document.querySelector('#rovMarker').style.left=d[3]+'%';document.querySelectorAll('[data-mission]').forEach(x=>x.classList.toggle('is-active',x===btn));
+}));
+const datasetInfo={
+ coralscapes:['SEMANTIC SEGMENTATION','Fine-grained benthic scene understanding','Coralscapes provides 2,075 densely annotated reef images across 39 benthic classes and also distributes neighbouring video frames.'],
+ coralvos:['VIDEO OBJECT SEGMENTATION','Dense coral analysis through video','CoralVOS studies dense coral video segmentation without relying on sparse frame sampling, connecting video interpretation to population estimation, spatial modelling and 3D reconstruction.'],
+ deepdive:['ROV IMAGE CLASSIFICATION','Deep-sea biota from an ROV perspective','Deepdive contains 4,158 ROV images covering 62 deep-sea biota classes, illustrating how underwater perception tasks change beyond shallow coral reefs.']
+};
+document.querySelectorAll('.dataset-card').forEach(btn=>btn.addEventListener('click',()=>{const d=datasetInfo[btn.dataset.dataset];document.querySelector('#datasetTag').textContent=d[0];document.querySelector('#datasetTitle').textContent=d[1];document.querySelector('#datasetCopy').textContent=d[2];document.querySelectorAll('.dataset-card').forEach(x=>x.classList.toggle('is-active',x===btn))}));
+
+// Conceptual temporal viewer: deliberately not presented as model inference.
+const frameStability=[92,88,94,83,90];
+document.querySelectorAll('[data-frame]').forEach(btn=>btn.addEventListener('click',()=>{const f=+btn.dataset.frame,v=frameStability[f-1];document.querySelector('#frameId').textContent=String(f).padStart(3,'0');document.querySelector('#stabilityValue').textContent=v+'%';document.querySelector('#stabilityBar').style.width=v+'%';const coral=document.querySelector('.temporal-coral'),mask=document.querySelector('.temporal-mask');const dx=(f-3)*2;coral.style.transform='translateX('+dx+'%) rotate('+(f-3)*.7+'deg)';mask.style.transform='translateX('+(dx+(92-v)*.12)+'%) rotate('+(f-3)*.7+'deg)';document.querySelectorAll('[data-frame]').forEach(x=>x.classList.toggle('is-active',x===btn))}));
+
+document.querySelectorAll('[data-twin]').forEach(btn=>btn.addEventListener('click',()=>{const mode=btn.dataset.twin,stage=document.querySelector('#twinStage');stage.classList.remove('semantic','change');if(mode!=='geometry')stage.classList.add(mode);document.querySelector('#twinMode').textContent=mode.toUpperCase();document.querySelectorAll('[data-twin]').forEach(x=>x.classList.toggle('is-active',x===btn))}));
