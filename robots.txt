@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zrsaimun.github.io/CCA-Ocean/sitemap.xml
