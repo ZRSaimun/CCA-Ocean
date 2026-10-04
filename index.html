@@ -108,6 +108,16 @@
           <div><strong>500M+</strong><span>people depend on reefs for food and livelihoods</span></div>
         </div>
         <a class="source-link" href="https://www.noaa.gov/explainers/coral-reefs-essential-and-threatened" target="_blank" rel="noreferrer">Explore NOAA coral reef science ↗</a>
+        <div class="hotspot-field" aria-label="Interactive reef discoveries">
+          <button class="hotspot hotspot--a" data-hotspot="biodiversity"><i></i><span>REEF LIFE</span></button>
+          <button class="hotspot hotspot--b" data-hotspot="stress"><i></i><span>CORAL STRESS</span></button>
+          <button class="hotspot hotspot--c" data-hotspot="vision"><i></i><span>AI VISION</span></button>
+          <div class="discovery-card" id="discoveryCard" aria-live="polite">
+            <span class="discovery-kicker">FIELD NOTE / SELECT A SIGNAL</span>
+            <strong id="discoveryTitle">Explore the reef</strong>
+            <p id="discoveryText">Move through the scene and select a marker to reveal why this part of the reef matters.</p>
+          </div>
+        </div>
         <div class="reef-legend">
           <span><i class="dot dot--coral"></i> coral structure</span>
           <span><i class="dot dot--edge"></i> boundary signal</span>
@@ -123,17 +133,18 @@
         <p>The research direction behind CCA Ocean focuses on colour consistency, boundary preservation and fine-grained semantic segmentation for underwater coral imagery.</p>
 
         <div class="vision-demo" id="visionDemo">
+          <div class="scanner-hud"><span>CCA-NET / VISUAL PIPELINE</span><b id="scanStatus">STANDBY</b></div>
           <div class="demo-header"><span>EXPLANATORY VISUALISATION</span><span id="demoLabel">RAW UNDERWATER FRAME</span></div>
           <div class="demo-stage">
             <div class="demo-before"></div>
             <div class="demo-after"></div>
             <div class="demo-divider" id="demoDivider"></div>
-            <div class="segmentation" id="segmentation"></div>
+            <div class="segmentation" id="segmentation"></div><div class="scan-beam" id="scanBeam"></div><div class="focus-reticle"><i></i></div>
           </div>
           <input id="visionSlider" type="range" min="0" max="100" value="36" aria-label="Compare raw underwater colour with normalised view" />
           <div class="demo-actions">
             <button id="colourMode" type="button" class="chip chip--active">COLOUR NORMALISATION</button>
-            <button id="maskMode" type="button" class="chip">SEGMENTATION OVERLAY</button>
+            <button id="maskMode" type="button" class="chip">SEGMENTATION OVERLAY</button><button id="scanMode" type="button" class="chip chip--scan">RUN VISUAL SCAN</button>
           </div>
         </div>
       </div>
