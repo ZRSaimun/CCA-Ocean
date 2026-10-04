@@ -4,7 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#02070c" />
-  <meta name="description" content="CCA Ocean — a cinematic WebGL exploration of our oceans, coral reef ecosystems and AI-powered underwater vision." />
+  <meta name="description" content="CCA Ocean — an interactive WebGL research experience exploring ocean systems, coral reefs, underwater computer vision and CCA-Net." />
+  <meta name="robots" content="index,follow" />
+  <meta name="author" content="CCA Ocean Research Experience" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="CCA Ocean — Coral Reef AI Research Experience" />
+  <meta property="og:description" content="Journey from planet-scale ocean systems to coral reef monitoring, underwater vision and CCA-Net research." />
+  <meta property="og:url" content="https://zrsaimun.github.io/CCA-Ocean/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://zrsaimun.github.io/CCA-Ocean/" />
   <title>CCA Ocean — Planet · Ocean · Reef · Vision</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,21 +43,21 @@
       <span class="brand__mark"></span>
       <span>CCA OCEAN</span><em class="brand__edition">RESEARCH EXPERIENCE</em>
     </a>
-    <nav class="nav" aria-label="Primary navigation">
+    <nav class="nav" aria-label="Primary navigation"><a class="skip-link" href="#main-content">Skip to content</a>
       <a href="#planet">Planet</a>
       <a href="#ocean">Ocean</a>
       <a href="#reef">Reef</a>
       <a href="#vision">Vision</a>
       <a href="#research">Research</a>
     </nav>
-    <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality">QUALITY · AUTO</button><div class="quality-control" aria-label="Graphics quality"><button data-quality="cinematic" class="quality-btn is-active">CINEMATIC</button><button data-quality="balanced" class="quality-btn">BALANCED</button><button data-quality="battery" class="quality-btn">BATTERY</button></div><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
+    <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality. Click to cycle Auto, Cinematic, Balanced and Efficient modes">QUALITY · AUTO</button><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
   </header>
 
   <aside class="progress" aria-label="Experience progress">
     <span id="progressFill"></span>
   </aside>
 
-  <main id="top">
+  <main id="top"><span id="main-content" tabindex="-1"></span>
     <section id="planet" class="chapter hero" data-scene="space">
       <div class="eyebrow">PLANETARY OCEAN SYSTEM · 01</div>
       <h1>Most of our world<br><span>moves in blue.</span></h1>
