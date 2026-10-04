@@ -80,3 +80,25 @@ document.querySelector('#maskMode').addEventListener('click',()=>{demo.classList
 let audioCtx=null,osc=null,gain=null;document.querySelector('#soundToggle').addEventListener('click',async e=>{const on=e.currentTarget.getAttribute('aria-pressed')==='true';if(on){gain?.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.4);setTimeout(()=>{osc?.stop();osc=null},450);e.currentTarget.setAttribute('aria-pressed','false');e.currentTarget.textContent='SOUND OFF'}else{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();osc=audioCtx.createOscillator();gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=58;gain.gain.value=.0001;osc.connect(gain).connect(audioCtx.destination);osc.start();gain.gain.exponentialRampToValueAtTime(.018,audioCtx.currentTime+.8);e.currentTarget.setAttribute('aria-pressed','true');e.currentTarget.textContent='SOUND ON'}});
 
 window.addEventListener('load',()=>setTimeout(()=>document.querySelector('#loader').classList.add('is-hidden'),650));
+
+// Interactive field discoveries — inspired by spatial storytelling, grounded in the CCA Ocean narrative.
+const discoveryData={
+ biodiversity:{title:'A dense web of reef life',text:'Coral reefs occupy a very small fraction of the ocean floor yet provide habitat for an extraordinary diversity of marine life. Reef condition therefore matters far beyond a single coral colony.'},
+ stress:{title:'Stress can become visible',text:'Thermal stress can cause corals to expel their symbiotic algae, producing bleaching. Repeated or severe stress can reduce survival, making consistent observation important.'},
+ vision:{title:'Water changes what a camera sees',text:'Colour attenuation, low contrast, blur and visually similar coral classes complicate underwater image interpretation — the visual problem addressed by the CCA-Net research direction.'}
+};
+document.querySelectorAll('.hotspot').forEach(btn=>btn.addEventListener('click',()=>{
+ const d=discoveryData[btn.dataset.hotspot]; if(!d)return;
+ document.querySelector('#discoveryTitle').textContent=d.title;
+ document.querySelector('#discoveryText').textContent=d.text;
+ document.querySelectorAll('.hotspot').forEach(x=>x.classList.remove('is-active'));btn.classList.add('is-active');
+}));
+const scanButton=document.querySelector('#scanMode');
+if(scanButton)scanButton.addEventListener('click',()=>{
+ const box=document.querySelector('#visionDemo'),status=document.querySelector('#scanStatus');
+ box.classList.remove('is-scanning');void box.offsetWidth;box.classList.add('is-scanning');status.textContent='SCANNING';
+ setTimeout(()=>{box.classList.add('mask');status.textContent='BOUNDARIES / MASK';document.querySelector('#maskMode')?.classList.add('chip--active')},1150);
+ setTimeout(()=>{status.textContent='SCAN COMPLETE';box.classList.remove('is-scanning')},2350);
+});
+const chapterObserver=new IntersectionObserver(entries=>entries.forEach(e=>e.target.classList.toggle('is-near',e.isIntersecting)),{threshold:.35});
+document.querySelectorAll('.chapter').forEach(x=>chapterObserver.observe(x));
