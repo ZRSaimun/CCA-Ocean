@@ -50,3 +50,27 @@ The site is designed to deploy directly from the repository root on the `main` b
 ---
 
 CCA Ocean is a visual research project about **observation and understanding**. It does not claim that computer vision directly stops bleaching, pollution or climate change; it explores how better underwater image interpretation can support reef monitoring and analysis.
+
+
+## Advanced experience architecture
+
+The current experience combines:
+
+- GPU shader-driven ocean waves with view-dependent Fresnel colour
+- animated caustics, volumetric light shafts, marine snow and directional currents
+- adaptive Cinematic / Balanced / Efficient rendering quality
+- state-aware surface-to-underwater fog, exposure, post-processing and opt-in audio
+- HDR-style bloom post-processing through Three.js EffectComposer
+- multi-form procedural reef biome with branching, massive and plate coral forms, rocks and irregular seabed relief
+- schooling marine-life silhouettes for parallax and scale
+- spatial CCA-Net research visualisation inside the 3D reef
+- a five-stage explanatory Research Dive: underwater degradation → UCN → SegFormer MiT-B2 → BAR → semantic segmentation
+- NASA Earth imagery with atmosphere, cloud shell, directional sunlight and planetary halo
+
+### Scientific integrity
+
+CCA Ocean is an explanatory research experience. The spatial scanner, feature grid, boundary markers and semantic overlays are visual explanations and are **not live neural-network inference**. Reported CCA-Net metrics and architecture claims are limited to the supplied research abstract. External dataset information is labelled separately.
+
+### Performance
+
+The renderer monitors frame rate in Auto mode and can reduce pixel ratio and expensive volumetric/particle layers. Visitors can also cycle rendering quality manually. Reduced-motion and mobile-specific presentation rules are included.
