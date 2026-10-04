@@ -231,6 +231,36 @@
         <div class="result-note">RESEARCH CLAIMS SHOWN HERE ARE LIMITED TO THE PROVIDED ABSTRACT · VISUALS ARE EXPLANATORY, NOT LIVE INFERENCE</div>
       </div>
     </section>
+
+    <section id="vision-lab" class="chapter vision-lab" data-scene="vision">
+      <div class="lab-shell">
+        <div class="lab-head">
+          <div><div class="eyebrow">CCA-NET VISION LAB · 06A</div><h2>See what the<br><span>model needs to see.</span></h2></div>
+          <p>Underwater imagery can lose colour consistency, contrast and boundary clarity. Explore the same simulated reef frame, then move through the CCA-Net research pipeline.</p>
+        </div>
+        <div class="lab-workspace">
+          <div class="lab-view" id="labView">
+            <div class="lab-image">
+              <div class="lab-seafloor"></div><div class="lab-coral lc-a"></div><div class="lab-coral lc-b"></div><div class="lab-coral lc-c"></div>
+              <div class="lab-haze"></div><div class="lab-mask"></div><div class="lab-boundaries"></div><div class="lab-feature-grid"></div>
+              <div class="lab-scanline"></div>
+            </div>
+            <div class="lab-overlay"><span>INPUT / SIMULATED REEF FRAME</span><b id="labState">RAW UNDERWATER</b></div>
+            <div class="lab-compare"><button type="button" class="lab-toggle is-active" data-lab-view="raw">RAW</button><button type="button" class="lab-toggle" data-lab-view="normalised">COLOUR NORMALISED</button></div>
+          </div>
+          <aside class="lab-console">
+            <div class="lab-console__top"><span>CCA-NET / PIPELINE</span><em id="labProgress">00 / 05</em></div>
+            <button class="lab-step" data-stage="ucn"><b>01</b><span><strong>UCN</strong><small>Underwater colour normalisation</small></span><i>READY</i></button>
+            <button class="lab-step" data-stage="features"><b>02</b><span><strong>MiT-B2</strong><small>Multi-scale feature extraction</small></span><i>READY</i></button>
+            <button class="lab-step" data-stage="bar"><b>03</b><span><strong>BAR</strong><small>Semantic masks + boundary awareness</small></span><i>READY</i></button>
+            <button class="lab-step" data-stage="coarse"><b>04</b><span><strong>HIERARCHICAL BRANCH</strong><small>Coarse semantic supervision</small></span><i>READY</i></button>
+            <button class="lab-step" data-stage="mask"><b>05</b><span><strong>OUTPUT</strong><small>Fine-grained semantic segmentation</small></span><i>READY</i></button>
+            <button id="runPipeline" class="run-pipeline" type="button"><span>RUN CCA-NET VISUAL SEQUENCE</span><i>→</i></button>
+          </aside>
+        </div>
+        <div class="lab-note"><span>EXPLANATORY VISUALISATION — NOT LIVE MODEL INFERENCE</span><p id="labExplanation">Start with the raw underwater state, compare colour normalisation, or select a pipeline stage to understand the research architecture.</p></div>
+      </div>
+    </section>
     <section class="chapter pipeline" data-scene="pipeline">
       <div class="panel panel--wide">
         <div class="eyebrow">CCA-NET PIPELINE · 06</div>
