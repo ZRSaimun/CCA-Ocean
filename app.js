@@ -43,6 +43,8 @@ const atmosphere=new THREE.Mesh(
  fragmentShader:`varying vec3 vNormal;uniform vec3 glowColor;void main(){float i=pow(0.68-dot(vNormal,vec3(0.,0.,1.)),3.2);gl_FragColor=vec4(glowColor,i*.55);}`})
 );earth.add(atmosphere);
 const nightRim=new THREE.PointLight(0x2c7b96,5,30);nightRim.position.set(-7,1,-3);earth.add(nightRim);
+const sun=new THREE.DirectionalLight(0xfff2d6,3.4);sun.position.set(12,4,9);scene.add(sun);
+const earthHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),g=x.createRadialGradient(128,128,42,128,128,128);g.addColorStop(0,'rgba(74,174,206,.18)');g.addColorStop(.55,'rgba(36,113,156,.07)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)})(),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));earthHalo.scale.set(9.4,9.4,1);earthHalo.position.z=-.45;earth.add(earthHalo);
 
 const starsGeo=new THREE.BufferGeometry();const starCount=1500;const pos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){const r=80+Math.random()*600;const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.cos(p);pos[i*3+2]=r*Math.sin(p)*Math.sin(t)}starsGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x9ed6db,size:.18,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
 
@@ -119,6 +121,7 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  const rv=progress>.57&&progress<.84;researchVision.visible=rv;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i})}
 
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
+ if(earth.visible){earthHalo.material.opacity=.7+.12*Math.sin(time*.25);sun.intensity=3.2+.25*Math.sin(time*.12)}
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
  const depth=Math.round(Math.max(0,Math.min(34,(progress-.28)*120)));document.querySelector('#depthValue').textContent=depth;
  renderer.render(scene,camera)}
