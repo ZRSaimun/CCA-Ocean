@@ -1,0 +1,16 @@
+{
+  "provenance": {
+    "generated_by": "research/build_manifest.py",
+    "inference": "not-run-by-this-script",
+    "rule": "Only files physically present in research/input are exposed as real experiment assets."
+  },
+  "metrics": {
+    "status": "paper-reported-only",
+    "accuracy": 82.8,
+    "miou": 58.0,
+    "note": "Headline values are reported in the supplied paper abstract; no per-class experiment export is bundled."
+  },
+  "assets": {
+    "raw": [], "ground_truth": [], "normalised": [], "boundaries": [], "predictions": [], "failures": []
+  }
+}
