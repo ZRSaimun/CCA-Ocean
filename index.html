@@ -185,6 +185,50 @@
         <div class="bridge-flow"><span>CAPTURE</span><i>→</i><span>NORMALISE</span><i>→</i><span>SEGMENT</span><i>→</i><span>MEASURE</span><i>→</i><span>UNDERSTAND</span></div>
       </div>
     </section>
+
+    <section id="research-dive" class="chapter research-dive" data-scene="vision">
+      <div class="research-dive__shell">
+        <header class="research-dive__head">
+          <div><div class="eyebrow">CCA-NET · INTERACTIVE RESEARCH DIVE</div><h2>See the problem.<br><span>Then see the model think.</span></h2></div>
+          <p>This is an explanatory visualisation of the research pipeline — not live model inference. Move through each stage to understand why fine-grained underwater coral segmentation is difficult and how CCA-Net is designed to address it.</p>
+        </header>
+        <div class="research-lab" id="researchLab" data-stage="raw">
+          <div class="research-lab__viewport">
+            <div class="lab-scene lab-scene--raw"></div>
+            <div class="lab-scene lab-scene--normalised"></div>
+            <div class="lab-feature-grid"></div>
+            <div class="lab-boundaries"></div>
+            <div class="lab-mask"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="lab-scanline"></div>
+            <div class="lab-reticle"><span></span></div>
+            <div class="lab-hud"><span id="labStageNo">01 / 05</span><b id="labStageLabel">RAW UNDERWATER FRAME</b><em>EXPLANATORY VISUALISATION</em></div>
+          </div>
+          <aside class="research-lab__info">
+            <div class="lab-info-kicker" id="labKicker">THE VISUAL PROBLEM</div>
+            <h3 id="labTitle">Water changes what the model sees.</h3>
+            <p id="labText">Underwater imagery can show poor colour consistency, low contrast and blur. Fine-grained coral classes can also look visually similar, making reliable pixel-level interpretation difficult.</p>
+            <div class="lab-architecture" id="labArchitecture"><span class="active">INPUT</span><i>→</i><span>UCN</span><i>→</i><span>MiT-B2</span><i>→</i><span>BAR</span><i>→</i><span>MASK</span></div>
+            <div class="lab-controls">
+              <button type="button" id="labPrev" aria-label="Previous research stage">←</button>
+              <div class="lab-dots" id="labDots"><button class="active" data-lab-stage="0"></button><button data-lab-stage="1"></button><button data-lab-stage="2"></button><button data-lab-stage="3"></button><button data-lab-stage="4"></button></div>
+              <button type="button" id="labNext" aria-label="Next research stage">→</button>
+            </div>
+          </aside>
+        </div>
+        <div class="dataset-context">
+          <span>DATASET CONTEXT · CORALSCAPES</span><strong>2,075 images</strong><strong>39 benthic classes</strong><strong>~174k expert annotations</strong><a href="https://josauder.github.io/coralscapes/" target="_blank" rel="noreferrer">Dataset source ↗</a>
+        </div>
+      </div>
+    </section>
+    <section class="chapter research-result" data-scene="research">
+      <div class="research-result__shell">
+        <div class="eyebrow">REPORTED IN THE CCA-NET ABSTRACT</div>
+        <h2>From difficult pixels<br>to finer reef boundaries.</h2>
+        <div class="result-display"><div><span>ACCURACY</span><strong>82.80<small>%</small></strong></div><div><span>mIoU</span><strong>58.0<small>%</small></strong></div></div>
+        <p>In the submitted abstract, CCA-Net is reported to outperform the baseline SegFormer MiT-B2, with qualitative improvement in coral boundaries and visually similar coral categories. The ablation findings are described as supporting the UCN, BAR decoder and hierarchical supervision.</p>
+        <div class="result-note">RESEARCH CLAIMS SHOWN HERE ARE LIMITED TO THE PROVIDED ABSTRACT · VISUALS ARE EXPLANATORY, NOT LIVE INFERENCE</div>
+      </div>
+    </section>
     <section class="chapter pipeline" data-scene="pipeline">
       <div class="panel panel--wide">
         <div class="eyebrow">CCA-NET PIPELINE · 06</div>
