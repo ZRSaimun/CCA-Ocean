@@ -3,6 +3,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 const canvas=document.querySelector('#scene');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -91,6 +93,16 @@ const researchVision=new THREE.Group();reef.add(researchVision);
 const scanPlane=new THREE.Mesh(new THREE.PlaneGeometry(18,8),new THREE.MeshBasicMaterial({color:0x68e3df,transparent:true,opacity:.045,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));scanPlane.rotation.y=Math.PI/2;researchVision.add(scanPlane);
 const boundaryCloud=new THREE.Group();researchVision.add(boundaryCloud);
 for(let i=0;i<24;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.45+Math.random()*.85,.018,6,32),new THREE.MeshBasicMaterial({color:i%3===0?0xf0c785:0x6fe7e2,transparent:true,opacity:.0,depthWrite:false}));ring.position.set((Math.random()-.5)*14,.4+Math.random()*3.8,(Math.random()-.5)*8);ring.rotation.x=Math.PI/2+(Math.random()-.5)*.5;boundaryCloud.add(ring)}
+// Asset-ready reef layer. Local GLB/GLTF assets can be added without making the experience dependent on a remote host.
+const reefAssetLayer=new THREE.Group();reef.add(reefAssetLayer);
+const gltfLoader=new GLTFLoader(),dracoLoader=new DRACOLoader();dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/libs/draco/');gltfLoader.setDRACOLoader(dracoLoader);
+const reefAssetManifest=[
+ {url:'./assets/models/coral-branching.glb',position:[-5,.1,-2],scale:1.8},
+ {url:'./assets/models/coral-massive.glb',position:[3,.1,-3],scale:2.1},
+ {url:'./assets/models/coral-plate.glb',position:[6,.1,2],scale:1.65}
+];
+let loadedReefAssets=0;
+reefAssetManifest.forEach(item=>gltfLoader.load(item.url,g=>{const root=g.scene;root.position.set(...item.position);root.scale.setScalar(item.scale);root.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;o.material.roughness=Math.max(.68,o.material.roughness??.8)}});reefAssetLayer.add(root);loadedReefAssets++;},undefined,()=>{}));
 // Lightweight schooling silhouettes add scale and parallax to the reef.
 const fishSchool=new THREE.Group();fishSchool.position.set(0,-21,-5);world.add(fishSchool);
 const fishGeo=new THREE.BufferGeometry();fishGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.34,0,0,.12,.13,0,.12,-.13,0,.12,0,0,.38,.18,0,.38,-.18,0],3));fishGeo.setIndex([0,1,2,3,4,5]);
