@@ -73,6 +73,11 @@ function branch(parent,x,y,z,len,rad,depth,mat){const g=new THREE.Mesh(new THREE
 for(let i=0;i<18;i++){const g=new THREE.Group();g.position.set((Math.random()-.5)*16,0,(Math.random()-.5)*8);reef.add(g);branch(g,0,0,0,1.4+Math.random()*2,.16+Math.random()*.15,2,Math.random()>.45?coralMat:coralGold)}
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60,40,40),new THREE.MeshStandardMaterial({color:0x0b2020,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.1;reef.add(floor);
 
+// Lightweight schooling silhouettes add scale and parallax to the reef.
+const fishSchool=new THREE.Group();fishSchool.position.set(0,-21,-5);world.add(fishSchool);
+const fishGeo=new THREE.BufferGeometry();fishGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.34,0,0,.12,.13,0,.12,-.13,0,.12,0,0,.38,.18,0,.38,-.18,0],3));fishGeo.setIndex([0,1,2,3,4,5]);
+const fishMat=new THREE.MeshBasicMaterial({color:0x6aa5aa,transparent:true,opacity:.42,side:THREE.DoubleSide,depthWrite:false});
+for(let i=0;i<26;i++){const f=new THREE.Mesh(fishGeo,fishMat.clone());f.position.set((Math.random()-.5)*28,(Math.random()-.5)*10,(Math.random()-.5)*18);f.scale.setScalar(.45+Math.random()*1.2);f.userData.speed=.45+Math.random()*.7;f.userData.phase=Math.random()*6.28;fishSchool.add(f)}
 const scanRing=new THREE.Mesh(new THREE.TorusGeometry(4.8,.018,8,180),new THREE.MeshBasicMaterial({color:0x75edf0,transparent:true,opacity:.0}));scanRing.rotation.x=Math.PI/2;reef.add(scanRing);
 
 const sections=[...document.querySelectorAll('[data-scene]')];
@@ -98,6 +103,8 @@ function updateCamera(p){
 function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
  oceanUniforms.uTime.value=time;causticPlane.material.uniforms.uTime.value=time*.65;
  shafts.children.forEach((s,i)=>{s.rotation.z=(i-3)*.035+Math.sin(time*.22+i)*.018;s.material.opacity=.018+(i%3)*.008+Math.sin(time*.35+i)*.004});
+ fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
+ reef.rotation.y=Math.sin(time*.13)*.025;
  const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
  const arr=ocean.geometry.attributes.position.array;for(let i=0;i<arr.length;i+=3){const x=oceanBase[i],y=oceanBase[i+1];arr[i+2]=Math.sin(x*.55+time*1.2)*.18+Math.cos(y*.42-time*.9)*.12}ocean.geometry.attributes.position.needsUpdate=true;ocean.geometry.computeVertexNormals();
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
