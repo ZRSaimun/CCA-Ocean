@@ -27,7 +27,7 @@ jobs:
       - name: Site integrity
         run: python scripts/check_site.py
       - name: JavaScript syntax
-        run: node --check app.js
+        run: node --input-type=module --check < app.js
 
   deploy:
     needs: validate
