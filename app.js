@@ -134,3 +134,22 @@ if(deepLightStage&&deepLightToggle){
    caption.textContent=!on?'Research light · revealed structure · stronger colour information':'Ambient visibility · silhouettes · low colour information';
  });
 }
+
+
+// Ambient water interface: lightweight DOM particles + pointer disturbance.
+const bubbleField=document.querySelector('#waterBubbles');
+if(bubbleField){
+ const frag=document.createDocumentFragment();
+ const count=matchMedia('(max-width: 800px)').matches?10:22;
+ for(let i=0;i<count;i++){const b=document.createElement('i');b.className='water-ui__bubble';
+  b.style.left=((i*47)%101)+'%';b.style.setProperty('--s',(3+(i*7)%11)+'px');
+  b.style.setProperty('--d',(10+(i*3)%13)+'s');b.style.setProperty('--delay',(-((i*1.7)%16))+'s');
+  b.style.setProperty('--drift',((-45+(i*29)%90))+'px');frag.appendChild(b)}
+ bubbleField.appendChild(frag);
+}
+const waterCursor=document.querySelector('#waterCursor');
+if(waterCursor&&!matchMedia('(pointer: coarse)').matches){
+ let tx=innerWidth/2,ty=innerHeight/2,cx=tx,cy=ty;
+ addEventListener('pointermove',e=>{tx=e.clientX;ty=e.clientY;document.body.classList.add('has-pointer')},{passive:true});
+ const follow=()=>{cx+=(tx-cx)*.09;cy+=(ty-cy)*.09;waterCursor.style.left=cx+'px';waterCursor.style.top=cy+'px';requestAnimationFrame(follow)};follow();
+}
