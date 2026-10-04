@@ -130,7 +130,9 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  if(earth.visible){earthHalo.material.opacity=.7+.12*Math.sin(time*.25);sun.intensity=3.2+.25*Math.sin(time*.12)}
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
  const depth=Math.round(Math.max(0,Math.min(34,(progress-.28)*120)));document.querySelector('#depthValue').textContent=depth;
- bloomPass.strength=submerged?.34:.2;composer.render()}
+ bloomPass.strength=submerged?.34:.2;
+ if(audioCtx&&audioSources.length){audioFilter.frequency.setTargetAtTime(submerged?620:6500,audioCtx.currentTime,.16);audioMaster.gain.setTargetAtTime(submerged?.042:.026,audioCtx.currentTime,.2);audioSources[0].frequency.setTargetAtTime(submerged?38:47,audioCtx.currentTime,.3)}
+ composer.render()}
 requestAnimationFrame(animate);
 
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight)});const qualityButton=document.querySelector('#qualityToggle');if(qualityButton){const order=['cinematic','balanced','efficient'];qualityButton.addEventListener('click',()=>{QualityManager.mode='manual';QualityManager.apply(order[(order.indexOf(QualityManager.active)+1)%order.length])});QualityManager.apply(matchMedia('(max-width: 800px)').matches?'efficient':'balanced');}
@@ -140,7 +142,11 @@ slider.addEventListener('input',e=>{const v=e.target.value;divider.style.left=`$
 document.querySelector('#colourMode').addEventListener('click',()=>{demo.classList.remove('mask');label.textContent='RAW ↔ NORMALISED VIEW';document.querySelector('#colourMode').classList.add('chip--active');document.querySelector('#maskMode').classList.remove('chip--active')});
 document.querySelector('#maskMode').addEventListener('click',()=>{demo.classList.add('mask');label.textContent='STYLISED SEMANTIC OVERLAY';document.querySelector('#maskMode').classList.add('chip--active');document.querySelector('#colourMode').classList.remove('chip--active')});
 
-let audioCtx=null,osc=null,gain=null;document.querySelector('#soundToggle').addEventListener('click',async e=>{const on=e.currentTarget.getAttribute('aria-pressed')==='true';if(on){gain?.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.4);setTimeout(()=>{osc?.stop();osc=null},450);e.currentTarget.setAttribute('aria-pressed','false');e.currentTarget.textContent='SOUND OFF'}else{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();osc=audioCtx.createOscillator();gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=58;gain.gain.value=.0001;osc.connect(gain).connect(audioCtx.destination);osc.start();gain.gain.exponentialRampToValueAtTime(.018,audioCtx.currentTime+.8);e.currentTarget.setAttribute('aria-pressed','true');e.currentTarget.textContent='SOUND ON'}});
+let audioCtx=null,audioMaster=null,audioFilter=null,audioSources=[];
+function stopOceanAudio(){if(!audioCtx)return;audioMaster.gain.setTargetAtTime(.0001,audioCtx.currentTime,.18);setTimeout(()=>{audioSources.forEach(s=>{try{s.stop()}catch{}});audioSources=[]},500)}
+function startOceanAudio(){audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioMaster=audioCtx.createGain();audioFilter=audioCtx.createBiquadFilter();audioFilter.type='lowpass';audioFilter.frequency.value=9000;audioMaster.gain.value=.0001;audioFilter.connect(audioMaster).connect(audioCtx.destination);
+ const deep=audioCtx.createOscillator(),drift=audioCtx.createOscillator(),deepGain=audioCtx.createGain(),driftGain=audioCtx.createGain();deep.type='sine';deep.frequency.value=43;deepGain.gain.value=.32;drift.type='sine';drift.frequency.value=91;driftGain.gain.value=.045;deep.connect(deepGain).connect(audioFilter);drift.connect(driftGain).connect(audioFilter);deep.start();drift.start();audioSources=[deep,drift];audioMaster.gain.exponentialRampToValueAtTime(.035,audioCtx.currentTime+.9)}
+document.querySelector('#soundToggle').addEventListener('click',async e=>{const on=e.currentTarget.getAttribute('aria-pressed')==='true';if(on){stopOceanAudio();e.currentTarget.setAttribute('aria-pressed','false');e.currentTarget.textContent='SOUND OFF'}else{startOceanAudio();e.currentTarget.setAttribute('aria-pressed','true');e.currentTarget.textContent='SOUND ON'}});
 
 window.addEventListener('load',()=>setTimeout(()=>document.querySelector('#loader').classList.add('is-hidden'),650));
 
