@@ -305,6 +305,59 @@
     </section>
 
 
+
+    <section class="chapter coral-hard" data-scene="reef">
+      <div class="research-shell">
+        <div class="eyebrow">WHY CORAL IS HARD FOR AI · RESEARCH CONTEXT</div>
+        <h2>One reef.<br><span>Many visual ambiguities.</span></h2>
+        <p class="lead">Fine-grained coral understanding is not simply “find the coral.” Underwater degradation, irregular morphology, similar textures and difficult boundaries can all affect what a vision system sees.</p>
+        <div class="challenge-orbit" id="challengeOrbit">
+          <button data-challenge="colour" class="challenge-node is-active">COLOUR SHIFT</button><button data-challenge="contrast" class="challenge-node">LOW CONTRAST</button><button data-challenge="shape" class="challenge-node">IRREGULAR SHAPE</button><button data-challenge="similarity" class="challenge-node">CLASS SIMILARITY</button><button data-challenge="boundary" class="challenge-node">BOUNDARY AMBIGUITY</button>
+          <div class="challenge-core"><small>VISUAL PROBLEM</small><strong id="challengeTitle">Colour changes underwater</strong><p id="challengeText">Water and imaging conditions can alter colour consistency, complicating downstream interpretation.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter dataset-lab" data-scene="reef">
+      <div class="research-shell">
+        <div class="eyebrow">CORALSCAPES · DATASET LENS</div>
+        <div class="split-title"><h2>Fine-grained means<br><span>more than “coral”.</span></h2><p>Coralscapes contains 2,075 images, about 174,000 annotated polygons and 39 benthic classes across 35 dive sites in five countries. This stylised explorer demonstrates why class-level reef understanding becomes a dense semantic problem.</p></div>
+        <div class="dataset-explorer" id="datasetExplorer">
+          <div class="dataset-scene"><div class="ds-region r1" data-class="Branching coral"></div><div class="ds-region r2" data-class="Massive / meandering coral"></div><div class="ds-region r3" data-class="Rubble"></div><div class="ds-region r4" data-class="Sand"></div><div class="ds-region r5" data-class="Sponge"></div><div class="dataset-label" id="datasetLabel">HOVER / TAP A REGION</div></div>
+          <div class="dataset-controls"><button class="ds-mode is-active" data-mode="rgb">RGB</button><button class="ds-mode" data-mode="semantic">SEMANTIC LENS</button><div><strong>39</strong><span>BENTHIC CLASSES</span></div><div><strong>2,075</strong><span>IMAGES</span></div><div><strong>35</strong><span>DIVE SITES</span></div></div>
+        </div>
+        <a class="source-link" href="https://zenodo.org/records/15061505" target="_blank" rel="noreferrer">Coralscapes dataset record ↗</a>
+      </div>
+    </section>
+
+    <section class="chapter task-aware" data-scene="vision">
+      <div class="research-shell">
+        <div class="eyebrow">ENHANCEMENT ≠ UNDERSTANDING</div>
+        <h2>Prettier to us<br><span>is not always better for AI.</span></h2>
+        <p class="lead">Recent task-aware underwater research highlights an important distinction: perceptual enhancement and downstream machine understanding are not necessarily the same objective. Compare three conceptual views below.</p>
+        <div class="tri-compare" id="triCompare"><button data-enhance="raw" class="enhance-state is-active"><b>01</b><strong>RAW</strong><span>Colour cast · haze · reduced contrast</span></button><button data-enhance="pretty" class="enhance-state"><b>02</b><strong>PERCEPTUAL</strong><span>Visually vivid · not automatically task-optimal</span></button><button data-enhance="task" class="enhance-state"><b>03</b><strong>TASK-AWARE</strong><span>Preserve information useful downstream</span></button><div class="enhance-visual raw" id="enhanceVisual"><i></i><em id="enhanceCaption">SIMULATED RAW UNDERWATER VIEW</em></div></div>
+      </div>
+    </section>
+
+    <section class="chapter boundary-lab" data-scene="vision">
+      <div class="research-shell">
+        <div class="eyebrow">BOUNDARY MICROSCOPE · BAR</div>
+        <div class="split-title"><h2>At the edge,<br><span>classes collide.</span></h2><p>Fine-grained segmentation depends not only on assigning a class, but on preserving where neighbouring regions meet. Drag the microscope to compare a softened generic boundary with a boundary-emphasised explanatory view.</p></div>
+        <div class="boundary-microscope" id="boundaryMicroscope"><div class="boundary-base"><div class="boundary-shape a"></div><div class="boundary-shape b"></div></div><div class="boundary-sharp" id="boundarySharp"><div class="boundary-shape a"></div><div class="boundary-shape b"></div></div><input id="boundarySlider" type="range" min="0" max="100" value="52" aria-label="Boundary comparison"><div class="boundary-labels"><span>SOFT / AMBIGUOUS</span><span>BOUNDARY EMPHASIS</span></div></div>
+      </div>
+    </section>
+
+    <section class="chapter research-map" data-scene="pipeline">
+      <div class="research-shell">
+        <div class="eyebrow">OCEAN AI OBSERVATORY · SELECTED RESEARCH LANDSCAPE</div>
+        <h2>Different papers.<br><span>Connected problems.</span></h2>
+        <div class="research-nodes"><article><small>DATA</small><strong>Coralscapes</strong><p>Fine-grained semantic scene understanding for coral reefs.</p><a href="https://zenodo.org/records/15061505" target="_blank" rel="noreferrer">DATASET ↗</a></article><article><small>UNDERWATER SEGMENTATION</small><strong>SUIM</strong><p>A benchmark perspective spanning multiple underwater object categories.</p><a href="https://ieeexplore.ieee.org/document/9340821/" target="_blank" rel="noreferrer">PAPER ↗</a></article><article><small>CORAL FEATURES</small><strong>CoralSRT</strong><p>Coral-specific feature rectification addressing difficult morphology and appearance.</p><a href="https://openaccess.thecvf.com/content/ICCV2025/html/Zheng_CoralSRT_Revisiting_Coral_Reef_Semantic_Segmentation_by_Feature_Rectification_via_ICCV_2025_paper.html" target="_blank" rel="noreferrer">PAPER ↗</a></article><article class="ours"><small>COLOUR + BOUNDARIES + MULTI-TASK</small><strong>CCA-Net</strong><p>Your research direction combines underwater colour normalisation, MiT-B2 features, boundary-aware decoding and hierarchical supervision.</p><span>THIS PROJECT'S RESEARCH ANCHOR</span></article></div>
+      </div>
+    </section>
+
+    <section class="chapter ecosystem-finale" data-scene="finale">
+      <div class="research-shell center"><div class="eyebrow">FROM PIXELS TO ECOSYSTEM KNOWLEDGE</div><h2>Seeing is only<br><span>the beginning.</span></h2><div class="knowledge-chain"><b>PIXELS</b><i>→</i><b>CORAL CLASSES</b><i>→</i><b>REEF MAP</b><i>→</i><b>REPEATED SURVEYS</b><i>→</i><b>CHANGE OVER TIME</b><i>→</i><b>ECOLOGICAL INFORMATION</b></div><p>AI does not protect an ocean by itself. Better interpretation can contribute to the monitoring and research people use to understand changing ecosystems.</p></div>
+    </section>
     <section class="chapter chapter--outcome" data-scene="finale">
       <div class="outcome-shell">
         <div class="eyebrow">FROM MODEL TO MISSION · 08A</div>
