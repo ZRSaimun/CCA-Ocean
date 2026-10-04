@@ -374,3 +374,21 @@ const frameStability=[92,88,94,83,90];
 document.querySelectorAll('[data-frame]').forEach(btn=>btn.addEventListener('click',()=>{const f=+btn.dataset.frame,v=frameStability[f-1];document.querySelector('#frameId').textContent=String(f).padStart(3,'0');document.querySelector('#stabilityValue').textContent=v+'%';document.querySelector('#stabilityBar').style.width=v+'%';const coral=document.querySelector('.temporal-coral'),mask=document.querySelector('.temporal-mask');const dx=(f-3)*2;coral.style.transform='translateX('+dx+'%) rotate('+(f-3)*.7+'deg)';mask.style.transform='translateX('+(dx+(92-v)*.12)+'%) rotate('+(f-3)*.7+'deg)';document.querySelectorAll('[data-frame]').forEach(x=>x.classList.toggle('is-active',x===btn))}));
 
 document.querySelectorAll('[data-twin]').forEach(btn=>btn.addEventListener('click',()=>{const mode=btn.dataset.twin,stage=document.querySelector('#twinStage');stage.classList.remove('semantic','change');if(mode!=='geometry')stage.classList.add(mode);document.querySelector('#twinMode').textContent=mode.toUpperCase();document.querySelectorAll('[data-twin]').forEach(x=>x.classList.toggle('is-active',x===btn))}));
+
+
+// V4 CCA-Net architecture explainer — explanatory only, not inference.
+const v4Stages={
+ ucn:['COLOUR CONSTANCY','Underwater Colour Normalisation','UCN addresses colour inconsistency in underwater imagery before the segmentation backbone processes the scene.',1],
+ encoder:['FEATURE ENCODING','SegFormer MiT-B2','The MiT-B2 encoder extracts hierarchical visual features used by the segmentation system.',2],
+ bar:['BOUNDARY AWARENESS','Boundary-Aware Refinement','BAR is presented in the abstract as the decoder component producing semantic masks together with boundary maps.',3],
+ coarse:['HIERARCHICAL SUPERVISION','Coarse Segmentation Branch','A hierarchical coarse branch adds supervision at another semantic scale; the abstract reports this component as part of the multi-task design.',4],
+ output:['MULTI-TASK OUTPUT','Semantic Mask + Boundary Map','The architecture targets fine-grained semantic segmentation while explicitly preserving boundary information. This interactive view explains the design; it does not execute CCA-Net.',5]
+};
+document.querySelectorAll('[data-v4stage]').forEach(btn=>btn.addEventListener('click',()=>{
+ const d=v4Stages[btn.dataset.v4stage]; if(!d)return;
+ const tag=document.querySelector('#v4StageTag'),title=document.querySelector('#v4StageTitle'),copy=document.querySelector('#v4StageCopy');
+ if(tag)tag.textContent=d[0];if(title)title.textContent=d[1];if(copy)copy.textContent=d[2];
+ document.querySelectorAll('[data-v4stage]').forEach(x=>x.classList.toggle('is-active',x===btn));
+ document.querySelectorAll('#v4Flow i').forEach((x,i)=>x.classList.toggle('is-on',i<d[3]));
+}));
+document.querySelectorAll('#v4Flow i').forEach((x,i)=>x.classList.toggle('is-on',i<1));
