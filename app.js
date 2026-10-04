@@ -46,9 +46,25 @@ const nightRim=new THREE.PointLight(0x2c7b96,5,30);nightRim.position.set(-7,1,-3
 
 const starsGeo=new THREE.BufferGeometry();const starCount=1500;const pos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){const r=80+Math.random()*600;const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.cos(p);pos[i*3+2]=r*Math.sin(p)*Math.sin(t)}starsGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x9ed6db,size:.18,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
 
-const ocean=new THREE.Mesh(new THREE.PlaneGeometry(70,70,120,120),new THREE.MeshStandardMaterial({color:0x063d52,roughness:.22,metalness:.18,transparent:true,opacity:.92,side:THREE.DoubleSide}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-6;world.add(ocean);
-const oceanBase=ocean.geometry.attributes.position.array.slice();
+const oceanUniforms={uTime:{value:0},uDeep:{value:new THREE.Color(0x011b2a)},uShallow:{value:new THREE.Color(0x08758b)},uSky:{value:new THREE.Color(0x8adce3)}};
+const ocean=new THREE.Mesh(new THREE.PlaneGeometry(80,80,180,180),new THREE.ShaderMaterial({
+ uniforms:oceanUniforms,transparent:true,side:THREE.DoubleSide,
+ vertexShader:`
+ uniform float uTime;varying vec3 vWorld;varying float vWave;
+ void main(){vec3 p=position;float w=sin(p.x*.34+uTime*1.15)*.34+sin(p.y*.51-uTime*.82)*.20+sin((p.x+p.y)*.18+uTime*.55)*.16;p.z+=w;vWave=w;vec4 wp=modelMatrix*vec4(p,1.);vWorld=wp.xyz;gl_Position=projectionMatrix*viewMatrix*wp;}`,
+ fragmentShader:`
+ uniform float uTime;uniform vec3 uDeep;uniform vec3 uShallow;uniform vec3 uSky;varying vec3 vWorld;varying float vWave;
+ void main(){vec3 V=normalize(cameraPosition-vWorld);float fres=pow(1.-abs(dot(V,vec3(0.,1.,0.))),3.);float ripple=.5+.5*sin(vWorld.x*1.7+vWorld.z*1.25+uTime*1.7);vec3 base=mix(uDeep,uShallow,clamp(vWave+0.48,0.,1.));vec3 col=mix(base,uSky,fres*.58);col+=ripple*.025;gl_FragColor=vec4(col,.94);}`
+}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-6;world.add(ocean);
 
+// Volumetric underwater shafts and current streaks.
+const shafts=new THREE.Group();world.add(shafts);
+for(let i=0;i<7;i++){const m=new THREE.Mesh(new THREE.ConeGeometry(2.4+i*.35,22,32,1,true),new THREE.MeshBasicMaterial({color:0x74dbe4,transparent:true,opacity:.018+(i%3)*.008,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));m.position.set(-12+i*4,-17,-4+(i%2)*3);m.rotation.z=(i-3)*.035;shafts.add(m)}
+const currentGeo=new THREE.BufferGeometry(),currentCount=220,currentPos=new Float32Array(currentCount*3);
+for(let i=0;i<currentCount;i++){currentPos[i*3]=(Math.random()-.5)*50;currentPos[i*3+1]=-10-Math.random()*28;currentPos[i*3+2]=(Math.random()-.5)*30}
+currentGeo.setAttribute('position',new THREE.BufferAttribute(currentPos,3));
+const currents=new THREE.Points(currentGeo,new THREE.PointsMaterial({color:0xb5f5f2,size:.055,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false}));world.add(currents);
+const causticPlane=new THREE.Mesh(new THREE.PlaneGeometry(44,30,1,1),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uTime:{value:0}},vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`varying vec2 vUv;uniform float uTime;void main(){vec2 p=vUv*12.;float a=sin(p.x+sin(p.y*.8+uTime)*2.)+sin(p.y*1.3+sin(p.x+uTime*.7)*1.7);float c=smoothstep(1.45,1.9,a);gl_FragColor=vec4(.35,.9,.92,c*.13);}`}));causticPlane.rotation.x=-Math.PI/2;causticPlane.position.set(0,-27,0);world.add(causticPlane);
 const particlesGeo=new THREE.BufferGeometry();const count=900;const ppos=new Float32Array(count*3);for(let i=0;i<count;i++){ppos[i*3]=(Math.random()-.5)*42;ppos[i*3+1]=-8-Math.random()*30;ppos[i*3+2]=(Math.random()-.5)*32}particlesGeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));const particles=new THREE.Points(particlesGeo,new THREE.PointsMaterial({color:0x8cecf0,size:.035,transparent:true,opacity:.42}));world.add(particles);
 
 const reef=new THREE.Group();reef.position.set(0,-28,0);world.add(reef);
@@ -79,7 +95,10 @@ function updateCamera(p){
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
 }
 
-function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
+function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
+ oceanUniforms.uTime.value=time;causticPlane.material.uniforms.uTime.value=time*.65;
+ shafts.children.forEach((s,i)=>{s.rotation.z=(i-3)*.035+Math.sin(time*.22+i)*.018;s.material.opacity=.018+(i%3)*.008+Math.sin(time*.35+i)*.004});
+ const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
  const arr=ocean.geometry.attributes.position.array;for(let i=0;i<arr.length;i+=3){const x=oceanBase[i],y=oceanBase[i+1];arr[i+2]=Math.sin(x*.55+time*1.2)*.18+Math.cos(y*.42-time*.9)*.12}ocean.geometry.attributes.position.needsUpdate=true;ocean.geometry.computeVertexNormals();
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
