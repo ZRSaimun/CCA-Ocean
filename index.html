@@ -356,6 +356,51 @@
     </section>
 
 
+
+    <section class="chapter mission-control" data-scene="reef">
+      <div class="research-shell">
+        <div class="eyebrow">REEF SURVEY MISSION · OPERABLE RESEARCH STORY</div>
+        <div class="split-title"><h2>Become the<br><span>survey operator.</span></h2><p>Follow a conceptual reef-monitoring workflow from transect capture to machine interpretation and repeated-survey comparison. This mission illustrates the workflow; it is not a live field survey.</p></div>
+        <div class="mission-ui" id="missionUI">
+          <div class="mission-map"><div class="transect-line"><i id="rovMarker"></i></div><div class="mission-depth">TRANSECT A · SIMULATED<br><strong id="missionDepth">08.4 M</strong></div></div>
+          <div class="mission-steps"><button data-mission="0" class="is-active"><b>01</b>CAPTURE</button><button data-mission="1"><b>02</b>FRAME</button><button data-mission="2"><b>03</b>SEGMENT</button><button data-mission="3"><b>04</b>MAP</button><button data-mission="4"><b>05</b>COMPARE</button><div class="mission-readout"><small>MISSION STATE</small><strong id="missionState">CAMERA TRANSECT</strong><p id="missionCopy">Collect a repeatable visual survey along the reef.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter dataset-observatory" data-scene="pipeline">
+      <div class="research-shell">
+        <div class="eyebrow">MULTI-DATASET OBSERVATORY · RESEARCH CONTEXT</div>
+        <h2>One ocean.<br><span>Different vision problems.</span></h2>
+        <div class="dataset-cards" id="datasetCards">
+          <button class="dataset-card is-active" data-dataset="coralscapes"><small>FINE-GRAINED REEF</small><strong>CORALSCAPES</strong><span>39 benthic classes · dense semantic labels</span></button>
+          <button class="dataset-card" data-dataset="coralvos"><small>VIDEO</small><strong>CORALVOS</strong><span>Dense coral video segmentation</span></button>
+          <button class="dataset-card" data-dataset="deepdive"><small>DEEP SEA / ROV</small><strong>DEEPDIVE</strong><span>4,158 images · 62 biota classes</span></button>
+        </div>
+        <div class="dataset-detail"><span id="datasetTag">SEMANTIC SEGMENTATION</span><strong id="datasetTitle">Fine-grained benthic scene understanding</strong><p id="datasetCopy">Coralscapes provides dense expert annotations for complex reef scenes and includes surrounding video frames, making it useful for thinking beyond isolated still images.</p></div>
+      </div>
+    </section>
+
+    <section class="chapter temporal-lab" data-scene="vision">
+      <div class="research-shell">
+        <div class="eyebrow">TEMPORAL LAB · VIDEO SEGMENTATION</div>
+        <div class="split-title"><h2>A reef is not<br><span>a single frame.</span></h2><p>CoralVOS formalises dense coral video segmentation, while Coralscapes also distributes neighbouring video frames. This explanatory lab demonstrates the temporal question: can interpretation remain stable as the camera moves?</p></div>
+        <div class="timeline-lab">
+          <div class="video-stage" id="videoStage"><div class="temporal-coral"></div><div class="temporal-mask"></div><div class="frame-id">FRAME <b id="frameId">001</b> / 005</div></div>
+          <div class="frame-strip" id="frameStrip"><button class="is-active" data-frame="1">001</button><button data-frame="2">002</button><button data-frame="3">003</button><button data-frame="4">004</button><button data-frame="5">005</button></div>
+          <div class="temporal-meter"><span>TEMPORAL STABILITY · CONCEPTUAL</span><div><i id="stabilityBar"></i></div><strong id="stabilityValue">92%</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter twin-lab" data-scene="reef">
+      <div class="research-shell">
+        <div class="eyebrow">REEF DIGITAL TWIN · PHOTOGRAMMETRY CONCEPT</div>
+        <div class="split-title"><h2>From flat pixels<br><span>into spatial reef structure.</span></h2><p>Research has combined underwater photogrammetry and semantic segmentation to map reef information into 3D. This interactive model is an explanatory digital-twin concept—not a reconstruction produced by CCA-Net.</p></div>
+        <div class="twin-stage" id="twinStage"><div class="twin-grid"></div><div class="twin-reef"><i></i><i></i><i></i><i></i><i></i></div><div class="twin-scan"></div><div class="twin-hud"><span>MODE</span><strong id="twinMode">GEOMETRY</strong></div></div>
+        <div class="twin-controls"><button class="is-active" data-twin="geometry">3D GEOMETRY</button><button data-twin="semantic">SEMANTIC MAP</button><button data-twin="change">CHANGE LAYER</button></div>
+      </div>
+    </section>
     <section class="chapter evidence-lab" data-scene="pipeline">
       <div class="research-shell">
         <div class="eyebrow">RESEARCH EVIDENCE · PROVENANCE FIRST</div>
