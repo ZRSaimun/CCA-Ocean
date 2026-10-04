@@ -16,7 +16,8 @@ renderer.toneMappingExposure=1.05;
 const composer=new EffectComposer(renderer);
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x02070c);
+const spaceColor=new THREE.Color(0x02070c),surfaceFogColor=new THREE.Color(0x031018),shallowWaterColor=new THREE.Color(0x052b33),deepWaterColor=new THREE.Color(0x01151d);
+scene.background=spaceColor.clone();
 scene.fog=new THREE.FogExp2(0x031018,.015);
 const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.1,2000);
 camera.position.set(0,0,13);
@@ -56,15 +57,15 @@ const earthHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:(()=>{const c=doc
 
 const starsGeo=new THREE.BufferGeometry();const starCount=1500;const pos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){const r=80+Math.random()*600;const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.cos(p);pos[i*3+2]=r*Math.sin(p)*Math.sin(t)}starsGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x9ed6db,size:.18,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
 
-const oceanUniforms={uTime:{value:0},uDeep:{value:new THREE.Color(0x011b2a)},uShallow:{value:new THREE.Color(0x08758b)},uSky:{value:new THREE.Color(0x8adce3)}};
+const oceanUniforms={uTime:{value:0},uDeep:{value:new THREE.Color(0x011b2a)},uShallow:{value:new THREE.Color(0x08758b)},uSky:{value:new THREE.Color(0x8adce3)},uCameraY:{value:0}};
 const ocean=new THREE.Mesh(new THREE.PlaneGeometry(80,80,180,180),new THREE.ShaderMaterial({
  uniforms:oceanUniforms,transparent:true,side:THREE.DoubleSide,
  vertexShader:`
  uniform float uTime;varying vec3 vWorld;varying float vWave;
  void main(){vec3 p=position;float w=sin(p.x*.34+uTime*1.15)*.34+sin(p.y*.51-uTime*.82)*.20+sin((p.x+p.y)*.18+uTime*.55)*.16;p.z+=w;vWave=w;vec4 wp=modelMatrix*vec4(p,1.);vWorld=wp.xyz;gl_Position=projectionMatrix*viewMatrix*wp;}`,
  fragmentShader:`
- uniform float uTime;uniform vec3 uDeep;uniform vec3 uShallow;uniform vec3 uSky;varying vec3 vWorld;varying float vWave;
- void main(){vec3 V=normalize(cameraPosition-vWorld);float fres=pow(1.-abs(dot(V,vec3(0.,1.,0.))),3.);float ripple=.5+.5*sin(vWorld.x*1.7+vWorld.z*1.25+uTime*1.7);vec3 base=mix(uDeep,uShallow,clamp(vWave+0.48,0.,1.));vec3 col=mix(base,uSky,fres*.58);col+=ripple*.025;gl_FragColor=vec4(col,.94);}`
+ uniform float uTime;uniform float uCameraY;uniform vec3 uDeep;uniform vec3 uShallow;uniform vec3 uSky;varying vec3 vWorld;varying float vWave;
+ void main(){vec3 V=normalize(cameraPosition-vWorld);float fres=pow(1.-abs(dot(V,vec3(0.,1.,0.))),3.);float ripple=.5+.5*sin(vWorld.x*1.7+vWorld.z*1.25+uTime*1.7);vec3 base=mix(uDeep,uShallow,clamp(vWave+0.48,0.,1.));vec3 col=mix(base,uSky,fres*.58);float subsurface=smoothstep(-8.,-5.,uCameraY);col+=uShallow*max(vWave,0.)*.09*subsurface;col+=ripple*.025;gl_FragColor=vec4(col,.94);}`
 }));ocean.rotation.x=-Math.PI/2;ocean.position.y=-6;world.add(ocean);
 
 // Volumetric underwater shafts and current streaks.
@@ -137,8 +138,12 @@ function updateCamera(p){
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
 }
 
-function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);const submerged=progress>.285&&progress<.88;document.body.classList.toggle('is-submerged',submerged);document.body.classList.toggle('research-vision-active',progress>.57&&progress<.84);scene.fog.density=lerp(scene.fog.density,submerged?.028:.015,.035);scene.fog.color.lerp(new THREE.Color(submerged?0x021821:0x031018),.035);renderer.toneMappingExposure=lerp(renderer.toneMappingExposure,submerged?.86:1.05,.03);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
- oceanUniforms.uTime.value=time;causticPlane.material.uniforms.uTime.value=time*.65;
+function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);const submerged=progress>.285&&progress<.88;document.body.classList.toggle('is-submerged',submerged);document.body.classList.toggle('research-vision-active',progress>.57&&progress<.84);
+ const waterDepth=submerged?THREE.MathUtils.clamp((-camera.position.y-6)/22,0,1):0,targetFog=submerged?lerp(.019,.043,waterDepth):.015;
+ scene.fog.density=lerp(scene.fog.density,targetFog,.04);scene.fog.color.lerp(submerged?(waterDepth>.48?deepWaterColor:shallowWaterColor):surfaceFogColor,.04);scene.background.lerp(submerged?(waterDepth>.5?deepWaterColor:shallowWaterColor):spaceColor,.025);
+ ambient.intensity=lerp(ambient.intensity,submerged?lerp(1.0,.42,waterDepth):1.3,.04);key.intensity=lerp(key.intensity,submerged?lerp(1.5,.38,waterDepth):2.2,.04);rim.intensity=lerp(rim.intensity,submerged?lerp(30,16,waterDepth):35,.04);
+ renderer.toneMappingExposure=lerp(renderer.toneMappingExposure,submerged?lerp(.92,.68,waterDepth):1.05,.03);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
+ oceanUniforms.uTime.value=time;oceanUniforms.uCameraY.value=camera.position.y;causticPlane.material.uniforms.uTime.value=time*.65;
  shafts.children.forEach((s,i)=>{s.rotation.z=(i-3)*.035+Math.sin(time*.22+i)*.018;s.material.opacity=.018+(i%3)*.008+Math.sin(time*.35+i)*.004});
  fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
  reef.rotation.y=Math.sin(time*.13)*.025;
