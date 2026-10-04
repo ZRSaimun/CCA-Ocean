@@ -18,7 +18,7 @@ const ambient=new THREE.HemisphereLight(0x9ce6ef,0x061016,1.3);scene.add(ambient
 const key=new THREE.DirectionalLight(0xd9f7ff,2.2);key.position.set(8,5,10);scene.add(key);
 const rim=new THREE.PointLight(0x2ab2ce,35,50);rim.position.set(-8,-1,7);scene.add(rim);
 
-const world=new THREE.Group();scene.add(world);
+const world=new THREE.Group();scene.add(world);const QualityManager={mode:'auto',frames:0,last:performance.now(),fps:60,active:'balanced',levels:{cinematic:{ratio:2,particles:true,shafts:true},balanced:{ratio:1.5,particles:true,shafts:true},efficient:{ratio:1,particles:false,shafts:false}},apply(level){this.active=level;const q=this.levels[level];renderer.setPixelRatio(Math.min(devicePixelRatio,q.ratio));renderer.setSize(innerWidth,innerHeight,false);document.body.dataset.quality=level;if(typeof particles!=='undefined')particles.visible=q.particles;if(typeof shafts!=='undefined')shafts.visible=q.shafts;const b=document.querySelector('#qualityToggle');if(b)b.textContent='QUALITY · '+(this.mode==='auto'?'AUTO / ':'')+level.toUpperCase()},tick(now){if(this.mode!=='auto')return;this.frames++;if(now-this.last>2500){this.fps=this.frames*1000/(now-this.last);this.frames=0;this.last=now;if(this.fps<42&&this.active!=='efficient')this.apply(this.active==='cinematic'?'balanced':'efficient');else if(this.fps>57&&this.active==='balanced')this.apply('cinematic')}}};
 
 const earth=new THREE.Group();world.add(earth);
 const textureLoader=new THREE.TextureLoader();
@@ -100,7 +100,7 @@ function updateCamera(p){
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
 }
 
-function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
+function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);const submerged=progress>.285&&progress<.88;document.body.classList.toggle('is-submerged',submerged);document.body.classList.toggle('research-vision-active',progress>.57&&progress<.84);scene.fog.density=lerp(scene.fog.density,submerged?.028:.015,.035);scene.fog.color.lerp(new THREE.Color(submerged?0x021821:0x031018),.035);renderer.toneMappingExposure=lerp(renderer.toneMappingExposure,submerged?.86:1.05,.03);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;
  oceanUniforms.uTime.value=time;causticPlane.material.uniforms.uTime.value=time*.65;
  shafts.children.forEach((s,i)=>{s.rotation.z=(i-3)*.035+Math.sin(time*.22+i)*.018;s.material.opacity=.018+(i%3)*.008+Math.sin(time*.35+i)*.004});
  fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
@@ -113,7 +113,7 @@ function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=win
  renderer.render(scene,camera)}
 requestAnimationFrame(animate);
 
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});const qualityButton=document.querySelector('#qualityToggle');if(qualityButton){const order=['cinematic','balanced','efficient'];qualityButton.addEventListener('click',()=>{QualityManager.mode='manual';QualityManager.apply(order[(order.indexOf(QualityManager.active)+1)%order.length])});QualityManager.apply(matchMedia('(max-width: 800px)').matches?'efficient':'balanced');}
 
 const slider=document.querySelector('#visionSlider'),divider=document.querySelector('#demoDivider'),after=document.querySelector('.demo-after'),demo=document.querySelector('#visionDemo'),label=document.querySelector('#demoLabel');
 slider.addEventListener('input',e=>{const v=e.target.value;divider.style.left=`${v}%`;after.style.clipPath=`inset(0 0 0 ${v}%)`});
