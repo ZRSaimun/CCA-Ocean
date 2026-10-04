@@ -179,3 +179,22 @@ if(waterCursor&&!matchMedia('(pointer: coarse)').matches){
  addEventListener('pointermove',e=>{tx=e.clientX;ty=e.clientY;document.body.classList.add('has-pointer')},{passive:true});
  const follow=()=>{cx+=(tx-cx)*.09;cy+=(ty-cy)*.09;waterCursor.style.left=cx+'px';waterCursor.style.top=cy+'px';requestAnimationFrame(follow)};follow();
 }
+
+
+// CCA-Net Research Dive — staged explanatory visualisation.
+const lab=document.querySelector('#researchLab');
+if(lab){
+ const stages=[
+  {key:'raw',label:'RAW UNDERWATER FRAME',kicker:'THE VISUAL PROBLEM',title:'Water changes what the model sees.',text:'Underwater imagery can show poor colour consistency, low contrast and blur. Fine-grained coral classes can also look visually similar, making reliable pixel-level interpretation difficult.',active:0},
+  {key:'normalise',label:'UCN / COLOUR NORMALISATION',kicker:'STAGE 01 · UCN',title:'First, stabilise the colour information.',text:'CCA-Net includes an Underwater Colour Normalisation component before semantic interpretation. This stage visualises the research idea of reducing underwater colour inconsistency so downstream features receive a more stable representation.',active:1},
+  {key:'features',label:'SEGFORMER MiT-B2 / FEATURES',kicker:'STAGE 02 · ENCODER',title:'Read the reef at multiple scales.',text:'The SegFormer MiT-B2 encoder provides the semantic feature representation. Here the grid is an explanatory view of multi-scale scene information — not a literal display of model activations.',active:2},
+  {key:'boundary',label:'BAR / BOUNDARY AWARENESS',kicker:'STAGE 03 · BAR DECODER',title:'The edge of a coral matters.',text:'The Boundary-Aware Refinement decoder is designed to produce semantic masks together with boundary information, targeting the difficult interfaces between visually similar coral regions.',active:3},
+  {key:'mask',label:'FINE-GRAINED SEMANTIC MASK',kicker:'STAGE 04 · OUTPUT',title:'From pixels to a structured reef map.',text:'The final visual state represents fine-grained semantic segmentation. CCA-Net also uses hierarchical coarse supervision and a composite training objective combining cross-entropy, Dice, boundary BCE and coarse-segmentation losses.',active:4}
+ ];
+ let n=0;const dots=[...document.querySelectorAll('[data-lab-stage]')],arch=[...document.querySelectorAll('#labArchitecture span')];
+ const render=(i)=>{n=(i+stages.length)%stages.length;const s=stages[n];lab.dataset.stage=s.key;lab.classList.remove('is-transitioning');void lab.offsetWidth;lab.classList.add('is-transitioning');
+  document.querySelector('#labStageNo').textContent=String(n+1).padStart(2,'0')+' / 05';document.querySelector('#labStageLabel').textContent=s.label;document.querySelector('#labKicker').textContent=s.kicker;document.querySelector('#labTitle').textContent=s.title;document.querySelector('#labText').textContent=s.text;
+  dots.forEach((d,k)=>d.classList.toggle('active',k===n));arch.forEach((a,k)=>a.classList.toggle('active',k<=s.active));
+ };
+ document.querySelector('#labPrev')?.addEventListener('click',()=>render(n-1));document.querySelector('#labNext')?.addEventListener('click',()=>render(n+1));dots.forEach((d,i)=>d.addEventListener('click',()=>render(i)));render(0);
+}
