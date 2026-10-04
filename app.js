@@ -68,11 +68,21 @@ const causticPlane=new THREE.Mesh(new THREE.PlaneGeometry(44,30,1,1),new THREE.S
 const particlesGeo=new THREE.BufferGeometry();const count=900;const ppos=new Float32Array(count*3);for(let i=0;i<count;i++){ppos[i*3]=(Math.random()-.5)*42;ppos[i*3+1]=-8-Math.random()*30;ppos[i*3+2]=(Math.random()-.5)*32}particlesGeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));const particles=new THREE.Points(particlesGeo,new THREE.PointsMaterial({color:0x8cecf0,size:.035,transparent:true,opacity:.42}));world.add(particles);
 
 const reef=new THREE.Group();reef.position.set(0,-28,0);world.add(reef);
-const coralMat=new THREE.MeshStandardMaterial({color:0xc98265,roughness:.78,emissive:0x351916,emissiveIntensity:.35});const coralGold=new THREE.MeshStandardMaterial({color:0xc5a86d,roughness:.8,emissive:0x312513,emissiveIntensity:.3});
-function branch(parent,x,y,z,len,rad,depth,mat){const g=new THREE.Mesh(new THREE.CylinderGeometry(rad*.72,rad, len,8),mat);g.position.set(x,y+len/2,z);g.rotation.z=(Math.random()-.5)*.55;g.rotation.x=(Math.random()-.5)*.35;parent.add(g);if(depth>0){for(let i=0;i<2+(Math.random()>.55?1:0);i++){const tip=new THREE.Group();tip.position.set(x+(Math.random()-.5)*len*.28,y+len*.92,z+(Math.random()-.5)*len*.28);parent.add(tip);branch(tip,0,0,0,len*.64,rad*.7,depth-1,mat)}}}
-for(let i=0;i<18;i++){const g=new THREE.Group();g.position.set((Math.random()-.5)*16,0,(Math.random()-.5)*8);reef.add(g);branch(g,0,0,0,1.4+Math.random()*2,.16+Math.random()*.15,2,Math.random()>.45?coralMat:coralGold)}
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60,40,40),new THREE.MeshStandardMaterial({color:0x0b2020,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.1;reef.add(floor);
-
+// Multi-form procedural reef: branching, massive and plate corals with rock/sand structure.
+const coralPalette=[0xb86f5b,0xd19a72,0xb8a06c,0x7c9678,0x9d6f7d].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.86,metalness:0,emissive:new THREE.Color(c).multiplyScalar(.09),emissiveIntensity:.32}));
+function branch(parent,x,y,z,len,rad,depth,mat){const g=new THREE.Mesh(new THREE.CylinderGeometry(rad*.7,rad,len,7),mat);g.position.set(x,y+len/2,z);g.rotation.z=(Math.random()-.5)*.62;g.rotation.x=(Math.random()-.5)*.38;parent.add(g);if(depth>0)for(let i=0;i<2+(Math.random()>.68?1:0);i++){const tip=new THREE.Group();tip.position.set(x+(Math.random()-.5)*len*.24,y+len*.9,z+(Math.random()-.5)*len*.24);parent.add(tip);branch(tip,0,0,0,len*.62,rad*.68,depth-1,mat)}}
+function massiveCoral(parent,s,mat){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(s,2),mat);m.scale.set(1,.58,1);m.position.y=s*.48;m.rotation.y=Math.random()*6.28;parent.add(m)}
+function plateCoral(parent,s,mat){for(let k=0;k<3;k++){const p=new THREE.Mesh(new THREE.CylinderGeometry(s*(.62+k*.16),s*(.48+k*.14),.12,18),mat);p.position.set((Math.random()-.5)*.35,.3+k*.38,(Math.random()-.5)*.3);p.rotation.z=(Math.random()-.5)*.16;parent.add(p)}}
+for(let i=0;i<46;i++){const g=new THREE.Group();g.position.set((Math.random()-.5)*25,0,(Math.random()-.5)*15);g.rotation.y=Math.random()*6.28;reef.add(g);const mat=coralPalette[i%coralPalette.length],kind=i%5;if(kind<2)branch(g,0,0,0,1.1+Math.random()*2,.12+Math.random()*.14,2,mat);else if(kind<4)massiveCoral(g,.55+Math.random()*1.25,mat);else plateCoral(g,.65+Math.random()*.8,mat)}
+const rockMat=new THREE.MeshStandardMaterial({color:0x263b37,roughness:1});
+for(let i=0;i<34;i++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.5+Math.random()*1.4,1),rockMat);r.position.set((Math.random()-.5)*30,.15,(Math.random()-.5)*18);r.scale.y=.35+Math.random()*.45;r.rotation.set(Math.random(),Math.random()*6.28,Math.random()*.3);reef.add(r)}
+const floorGeo=new THREE.PlaneGeometry(60,60,48,48);const fp=floorGeo.attributes.position;for(let i=0;i<fp.count;i++){const x=fp.getX(i),y=fp.getY(i);fp.setZ(i,Math.sin(x*.28)*.13+Math.cos(y*.31)*.1+Math.sin((x+y)*.13)*.08)}floorGeo.computeVertexNormals();
+const floor=new THREE.Mesh(floorGeo,new THREE.MeshStandardMaterial({color:0x102a27,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.18;reef.add(floor);
+// Spatial CCA-Net overlay lives in the reef itself.
+const researchVision=new THREE.Group();reef.add(researchVision);
+const scanPlane=new THREE.Mesh(new THREE.PlaneGeometry(18,8),new THREE.MeshBasicMaterial({color:0x68e3df,transparent:true,opacity:.045,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));scanPlane.rotation.y=Math.PI/2;researchVision.add(scanPlane);
+const boundaryCloud=new THREE.Group();researchVision.add(boundaryCloud);
+for(let i=0;i<24;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.45+Math.random()*.85,.018,6,32),new THREE.MeshBasicMaterial({color:i%3===0?0xf0c785:0x6fe7e2,transparent:true,opacity:.0,depthWrite:false}));ring.position.set((Math.random()-.5)*14,.4+Math.random()*3.8,(Math.random()-.5)*8);ring.rotation.x=Math.PI/2+(Math.random()-.5)*.5;boundaryCloud.add(ring)}
 // Lightweight schooling silhouettes add scale and parallax to the reef.
 const fishSchool=new THREE.Group();fishSchool.position.set(0,-21,-5);world.add(fishSchool);
 const fishGeo=new THREE.BufferGeometry();fishGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.34,0,0,.12,.13,0,.12,-.13,0,.12,0,0,.38,.18,0,.38,-.18,0],3));fishGeo.setIndex([0,1,2,3,4,5]);
@@ -106,6 +116,7 @@ function animate(t){requestAnimationFrame(animate);QualityManager.tick(t);const 
  fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
  reef.rotation.y=Math.sin(time*.13)*.025;
  const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
+ const rv=progress>.57&&progress<.84;researchVision.visible=rv;if(rv){scanPlane.position.x=((time*2.2)%18)-9;scanPlane.material.opacity=.035+Math.sin(time*3)*.012;boundaryCloud.children.forEach((r,i)=>{r.material.opacity=.16+.18*(.5+.5*Math.sin(time*2+i));r.rotation.z=time*.08+i})}
 
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
