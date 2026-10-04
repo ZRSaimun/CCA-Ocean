@@ -94,7 +94,7 @@ function updateCamera(p){
   else if(p<.72){camera.position.set(lerp(0,5,d),lerp(-24,-27,d),lerp(5,9,d));camera.lookAt(0,-26,0)}
   else if(p<.88){camera.position.set(lerp(5,-3,e),lerp(-27,-24,e),lerp(9,6,e));camera.lookAt(0,-25,0)}
   else{camera.position.set(lerp(-3,0,f),lerp(-24,0,f),lerp(6,16,f));camera.lookAt(0,lerp(-25,0,f),0);earth.position.set(0,0,0)}
-  const oceanVis=(p>.12&&p<.54)?1:0;ocean.material.opacity=lerp(ocean.material.opacity,oceanVis*.92,.08);
+  const oceanVis=(p>.12&&p<.54)?1:0;ocean.visible=oceanVis>.02;
   reef.visible=p>.34&&p<.93;
   earth.visible=p<.28||p>.86;
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
@@ -106,7 +106,7 @@ function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=win
  fishSchool.children.forEach((f,i)=>{f.position.x+=.008*f.userData.speed;f.position.y+=Math.sin(time*1.1+f.userData.phase)*.0018;if(f.position.x>15)f.position.x=-15;f.rotation.z=Math.sin(time*.7+f.userData.phase)*.05});
  reef.rotation.y=Math.sin(time*.13)*.025;
  const cp=currents.geometry.attributes.position;for(let i=0;i<cp.count;i++){cp.array[i*3]+=.004+.002*Math.sin(time+i);if(cp.array[i*3]>25)cp.array[i*3]=-25}cp.needsUpdate=true;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
- const arr=ocean.geometry.attributes.position.array;for(let i=0;i<arr.length;i+=3){const x=oceanBase[i],y=oceanBase[i+1];arr[i+2]=Math.sin(x*.55+time*1.2)*.18+Math.cos(y*.42-time*.9)*.12}ocean.geometry.attributes.position.needsUpdate=true;ocean.geometry.computeVertexNormals();
+
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
  const depth=Math.round(Math.max(0,Math.min(34,(progress-.28)*120)));document.querySelector('#depthValue').textContent=depth;
