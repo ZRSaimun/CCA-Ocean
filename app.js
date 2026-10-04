@@ -292,3 +292,27 @@ if(runPipeline)runPipeline.addEventListener('click',()=>{
  const stages=['ucn','features','bar','coarse','mask'];
  stages.forEach((stage,i)=>pipelineTimers.push(setTimeout(()=>setLabStage(stage,i),i*1350)));
 });
+
+
+// Ocean AI Observatory interactions.
+const challengeCopy={
+ colour:['Colour changes underwater','Water and imaging conditions can alter colour consistency, complicating downstream interpretation.'],
+ contrast:['Contrast falls away','Scattering, haze and attenuation can reduce local contrast and obscure fine visual structure.'],
+ shape:['Coral does not follow simple geometry','Coral morphology can be irregular, complex and self-repeating, making shape cues difficult to generalise.'],
+ similarity:['Different classes can look alike','Fine-grained benthic categories can share colour and texture, increasing visual ambiguity between neighbouring classes.'],
+ boundary:['Edges matter','Adjacent coral and substrate regions can meet along complex contours; blurred boundaries can reduce fine-grained segmentation quality.']
+};
+document.querySelectorAll('.challenge-node').forEach(btn=>btn.addEventListener('click',()=>{
+ const d=challengeCopy[btn.dataset.challenge];document.querySelector('#challengeTitle').textContent=d[0];document.querySelector('#challengeText').textContent=d[1];
+ document.querySelectorAll('.challenge-node').forEach(x=>x.classList.toggle('is-active',x===btn));
+}));
+const datasetExplorer=document.querySelector('#datasetExplorer'),datasetLabel=document.querySelector('#datasetLabel');
+document.querySelectorAll('.ds-mode').forEach(btn=>btn.addEventListener('click',()=>{
+ const semantic=btn.dataset.mode==='semantic';datasetExplorer?.classList.toggle('semantic',semantic);document.querySelectorAll('.ds-mode').forEach(x=>x.classList.toggle('is-active',x===btn));
+}));
+document.querySelectorAll('.ds-region').forEach(region=>{const show=()=>{if(datasetLabel)datasetLabel.textContent=region.dataset.class.toUpperCase()};region.addEventListener('mouseenter',show);region.addEventListener('click',show)});
+const enhanceVisual=document.querySelector('#enhanceVisual'),enhanceCaption=document.querySelector('#enhanceCaption');
+const enhanceText={raw:'SIMULATED RAW UNDERWATER VIEW',pretty:'PERCEPTUAL ENHANCEMENT / CONCEPTUAL',task:'TASK-AWARE VIEW / CONCEPTUAL'};
+document.querySelectorAll('.enhance-state').forEach(btn=>btn.addEventListener('click',()=>{enhanceVisual.className='enhance-visual '+btn.dataset.enhance;enhanceCaption.textContent=enhanceText[btn.dataset.enhance];document.querySelectorAll('.enhance-state').forEach(x=>x.classList.toggle('is-active',x===btn))}));
+const boundarySlider=document.querySelector('#boundarySlider'),boundarySharp=document.querySelector('#boundarySharp');
+if(boundarySlider&&boundarySharp)boundarySlider.addEventListener('input',()=>boundarySharp.style.clipPath='inset(0 0 0 '+boundarySlider.value+'%)');
