@@ -34,7 +34,7 @@ class BoundaryAwareDecoder(nn.Module):
         size=features[0].shape[-2:]; xs=[F.interpolate(p(f),size=size,mode='bilinear',align_corners=False) for p,f in zip(self.proj,features)]; z=self.fuse(torch.cat(xs,1)); return {"semantic":F.interpolate(self.semantic(z),out_size,mode='bilinear',align_corners=False),"boundary":F.interpolate(self.boundary(z),out_size,mode='bilinear',align_corners=False),"coarse":F.interpolate(self.coarse(features[-1]),out_size,mode='bilinear',align_corners=False)}
 
 class CCANet(nn.Module):
-    def __init__(self,num_classes=39,encoder=None):
-        super().__init__();self.ucn=UnderwaterColourNormalisation();self.encoder=encoder or ConvEncoder();self.decoder=BoundaryAwareDecoder(num_classes)
+    def __init__(self,num_classes=39,encoder=None,encoder_dims=(32,64,160,256)):
+        super().__init__();self.ucn=UnderwaterColourNormalisation();self.encoder=encoder or ConvEncoder();self.decoder=BoundaryAwareDecoder(num_classes,dims=encoder_dims)
     def forward(self,x):
         norm=self.ucn(x);out=self.decoder(self.encoder(norm),x.shape[-2:]);out["normalised"]=norm;return out
