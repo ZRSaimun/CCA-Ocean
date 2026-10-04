@@ -48,7 +48,7 @@
       <a href="#ocean">Ocean</a>
       <a href="#reef">Reef</a>
       <a href="#vision">Vision</a>
-      <a href="#research">Research</a><a href="#agu26">AGU26</a>
+      <a href="#research">Research</a><a href="#agu26">AGU26</a><a href="#agu26-hub">Hub</a>
     </nav>
     <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality. Click to cycle Auto, Cinematic, Balanced and Efficient modes">QUALITY · AUTO</button><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
   </header>
@@ -322,6 +322,30 @@
           <div class="is-next"><b>04</b><span>Poster Presentation · Dec 2026</span></div>
         </div>
         <p class="agu26-note">VERIFIED STATUS · AGU26 PROGRAM COMMITTEE ACCEPTANCE CONFIRMATION · PRESENTATION MATERIALS AREA READY FOR THE FINAL 44 × 44 IN POSTER</p>
+      </div>
+    </section>
+
+    <section id="agu26-hub" class="chapter v4-hub" data-scene="research" aria-labelledby="v4-title">
+      <div class="v4-shell">
+        <div class="eyebrow">AGU26 PRESENTATION HUB · V4</div>
+        <div class="v4-head"><div><h2 id="v4-title">CCA-Net,<br><span>explained as research.</span></h2><p>A conference companion for the accepted AGU26 abstract: inspect the model design, separate reported evidence from explanatory graphics, and follow the path toward the December poster presentation.</p></div><div class="v4-stamp"><small>STATUS</small><strong>ACCEPTED</strong><span>POSTER · AGU26</span></div></div>
+        <div class="v4-architecture" aria-label="Interactive CCA-Net architecture">
+          <div class="v4-stage-tabs" role="tablist" aria-label="CCA-Net stages">
+            <button class="v4-stage is-active" data-v4stage="ucn"><b>01</b><span>UCN</span></button>
+            <button class="v4-stage" data-v4stage="encoder"><b>02</b><span>MiT-B2</span></button>
+            <button class="v4-stage" data-v4stage="bar"><b>03</b><span>BAR</span></button>
+            <button class="v4-stage" data-v4stage="coarse"><b>04</b><span>HIERARCHICAL</span></button>
+            <button class="v4-stage" data-v4stage="output"><b>05</b><span>OUTPUT</span></button>
+          </div>
+          <div class="v4-stage-detail"><small id="v4StageTag">COLOUR CONSTANCY</small><h3 id="v4StageTitle">Underwater Colour Normalisation</h3><p id="v4StageCopy">UCN addresses colour inconsistency in underwater imagery before the segmentation backbone processes the scene.</p><div class="v4-flow" id="v4Flow"><i></i><i></i><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="v4-evidence">
+          <article class="v4-result"><small>PAPER-REPORTED RESULT</small><strong>82.80%</strong><span>Accuracy</span><p>Reported in the submitted abstract; not recomputed by this website.</p></article>
+          <article class="v4-result"><small>PAPER-REPORTED RESULT</small><strong>58.0%</strong><span>mIoU</span><p>Reported in the submitted abstract; not recomputed by this website.</p></article>
+          <article class="v4-result v4-result--wide"><small>SUPPORTED CLAIM</small><h3>Boundary-aware, multi-task segmentation</h3><p>The abstract reports comparison with UNet++, DeepLabV3+ and SegFormer, improved boundary detection and segmentation of visually similar coral types, plus ablation support for UCN, BAR and hierarchical supervision. Baseline values not supplied in the abstract are intentionally not invented here.</p></article>
+        </div>
+        <div class="v4-poster-bridge"><div><small>AGU26 · POSTER COMPANION</small><h3>Physical poster → interactive research experience</h3><p>This hub is designed to become the mobile destination behind the final poster QR code. Genuine predictions, failure cases and additional experiment metrics will appear only when real experiment artifacts are connected.</p></div><div class="v4-poster-spec"><b>44 × 44 IN</b><span>MAXIMUM POSTER SIZE</span><em>DEC · 2026</em></div></div>
+        <p class="v4-disclosure">RESEARCH DISCLOSURE · ARCHITECTURE EXPLANATION BASED ON THE CCA-NET ABSTRACT · METRICS ARE PAPER-REPORTED · INTERACTIVE GRAPHICS ARE EXPLANATORY, NOT LIVE MODEL INFERENCE</p>
       </div>
     </section>
 
