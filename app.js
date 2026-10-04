@@ -21,11 +21,28 @@ const rim=new THREE.PointLight(0x2ab2ce,35,50);rim.position.set(-8,-1,7);scene.a
 const world=new THREE.Group();scene.add(world);
 
 const earth=new THREE.Group();world.add(earth);
-const globe=new THREE.Mesh(new THREE.SphereGeometry(3.35,96,96),new THREE.MeshStandardMaterial({color:0x0d5d78,roughness:.48,metalness:.02,emissive:0x062b39,emissiveIntensity:.85}));earth.add(globe);
-const landMat=new THREE.MeshStandardMaterial({color:0x49745f,roughness:.95,emissive:0x132d24,emissiveIntensity:.4});
-[[.4,.7,2.92,.9,.48],[1.65,.2,2.63,.65,.9],[-1.3,.15,2.95,.85,.55],[-.3,-1.35,2.85,.6,.72],[1.2,-1.4,2.76,.46,.5]].forEach(([x,y,z,sx,sy])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.65,20,20,0,Math.PI*1.45,0,Math.PI/2),landMat);m.position.set(x,y,z);m.scale.set(sx,sy,.18);m.rotation.z=Math.random()*1.4;earth.add(m)});
-const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(3.48,64,64),new THREE.MeshBasicMaterial({color:0x65d8df,transparent:true,opacity:.07,side:THREE.BackSide}));earth.add(atmosphere);
-const wire=new THREE.Mesh(new THREE.SphereGeometry(3.58,32,16),new THREE.MeshBasicMaterial({color:0x79dce4,wireframe:true,transparent:true,opacity:.035}));earth.add(wire);
+const textureLoader=new THREE.TextureLoader();
+const earthTexture=textureLoader.load('https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-base/january/world.200401.3x5400x2700.jpg');
+earthTexture.colorSpace=THREE.SRGBColorSpace;
+earthTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+const globe=new THREE.Mesh(
+ new THREE.SphereGeometry(3.35,128,128),
+ new THREE.MeshPhysicalMaterial({map:earthTexture,roughness:.72,metalness:0,clearcoat:.08,clearcoatRoughness:.65})
+);earth.add(globe);
+// A separate translucent cloud shell gives the planet depth without the artificial blue orbit ring.
+const cloudCanvas=document.createElement('canvas');cloudCanvas.width=1024;cloudCanvas.height=512;
+const cc=cloudCanvas.getContext('2d');const cloudImage=cc.createImageData(1024,512);
+for(let y=0;y<512;y++)for(let x=0;x<1024;x++){const i=(y*1024+x)*4;const n=(Math.sin(x*.031+Math.sin(y*.017)*4)+Math.sin(x*.071-y*.023)+Math.sin((x+y)*.013))*0.33;const a=Math.max(0,n-.18)*105;cloudImage.data[i]=255;cloudImage.data[i+1]=255;cloudImage.data[i+2]=255;cloudImage.data[i+3]=a}
+cc.putImageData(cloudImage,0,0);const cloudTex=new THREE.CanvasTexture(cloudCanvas);
+const clouds=new THREE.Mesh(new THREE.SphereGeometry(3.385,96,96),new THREE.MeshStandardMaterial({map:cloudTex,transparent:true,opacity:.38,depthWrite:false,roughness:1}));earth.add(clouds);
+const atmosphere=new THREE.Mesh(
+ new THREE.SphereGeometry(3.48,96,96),
+ new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false,
+ uniforms:{glowColor:{value:new THREE.Color(0x55b8d6)}},
+ vertexShader:`varying vec3 vNormal;void main(){vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+ fragmentShader:`varying vec3 vNormal;uniform vec3 glowColor;void main(){float i=pow(0.68-dot(vNormal,vec3(0.,0.,1.)),3.2);gl_FragColor=vec4(glowColor,i*.55);}`})
+);earth.add(atmosphere);
+const nightRim=new THREE.PointLight(0x2c7b96,5,30);nightRim.position.set(-7,1,-3);earth.add(nightRim);
 
 const starsGeo=new THREE.BufferGeometry();const starCount=1500;const pos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){const r=80+Math.random()*600;const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(p)*Math.cos(t);pos[i*3+1]=r*Math.cos(p);pos[i*3+2]=r*Math.sin(p)*Math.sin(t)}starsGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x9ed6db,size:.18,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
 
@@ -62,7 +79,7 @@ function updateCamera(p){
   scanRing.material.opacity=p>.56&&p<.74?.6:0;
 }
 
-function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.07;wire.rotation.y=-time*.025;stars.rotation.y=time*.003;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
+function animate(t){requestAnimationFrame(animate);const time=t*.001;scrollY=window.scrollY;progress=getSceneProgress();updateCamera(progress);earth.rotation.y=time*.035;clouds.rotation.y=time*.045;stars.rotation.y=time*.003;scanRing.scale.setScalar(1+Math.sin(time*2.3)*.08);scanRing.rotation.z=time*.3;
  const arr=ocean.geometry.attributes.position.array;for(let i=0;i<arr.length;i+=3){const x=oceanBase[i],y=oceanBase[i+1];arr[i+2]=Math.sin(x*.55+time*1.2)*.18+Math.cos(y*.42-time*.9)*.12}ocean.geometry.attributes.position.needsUpdate=true;ocean.geometry.computeVertexNormals();
  particles.rotation.y=time*.006;particles.position.y=Math.sin(time*.25)*.25;
  document.querySelector('#progressFill').style.height=`${progress*100}%`;
