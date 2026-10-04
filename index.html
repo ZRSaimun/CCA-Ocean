@@ -42,7 +42,7 @@
       <a href="#vision">Vision</a>
       <a href="#research">Research</a>
     </nav>
-    <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality">QUALITY · AUTO</button><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
+    <div class="system-controls"><button id="qualityToggle" class="quality" type="button" aria-label="Rendering quality">QUALITY · AUTO</button><div class="quality-control" aria-label="Graphics quality"><button data-quality="cinematic" class="quality-btn is-active">CINEMATIC</button><button data-quality="balanced" class="quality-btn">BALANCED</button><button data-quality="battery" class="quality-btn">BATTERY</button></div><button id="soundToggle" class="sound" type="button" aria-pressed="false">SOUND OFF</button></div>
   </header>
 
   <aside class="progress" aria-label="Experience progress">
@@ -355,6 +355,17 @@
       </div>
     </section>
 
+
+    <section class="chapter evidence-lab" data-scene="pipeline">
+      <div class="research-shell">
+        <div class="eyebrow">RESEARCH EVIDENCE · PROVENANCE FIRST</div>
+        <div class="split-title"><h2>Show the result.<br><span>Show where it came from.</span></h2><p>CCA Ocean separates paper-reported metrics, explanatory graphics and genuine experiment artifacts. Real predictions and failure cases appear here only when they exist in the research manifest.</p></div>
+        <div class="evidence-grid">
+          <div class="evidence-status"><span>DATA PIPELINE</span><strong id="evidenceStatus">CHECKING MANIFEST…</strong><p id="evidenceNote">Loading research provenance.</p><div class="metric-pair"><div><b>82.80%</b><small>ACCURACY · PAPER REPORTED</small></div><div><b>58.0%</b><small>mIoU · PAPER REPORTED</small></div></div></div>
+          <div class="failure-console"><div class="failure-top"><span>FAILURE CASE LAB</span><em id="failureCount">0 REAL CASES</em></div><div id="failureBody" class="failure-empty"><i>∅</i><strong>Awaiting genuine experiment outputs</strong><p>No failure images are bundled yet. This panel will populate from <code>research/input/failures</code> after the Python manifest builder runs.</p></div></div>
+        </div>
+      </div>
+    </section>
     <section class="chapter ecosystem-finale" data-scene="finale">
       <div class="research-shell center"><div class="eyebrow">FROM PIXELS TO ECOSYSTEM KNOWLEDGE</div><h2>Seeing is only<br><span>the beginning.</span></h2><div class="knowledge-chain"><b>PIXELS</b><i>→</i><b>CORAL CLASSES</b><i>→</i><b>REEF MAP</b><i>→</i><b>REPEATED SURVEYS</b><i>→</i><b>CHANGE OVER TIME</b><i>→</i><b>ECOLOGICAL INFORMATION</b></div><p>AI does not protect an ocean by itself. Better interpretation can contribute to the monitoring and research people use to understand changing ecosystems.</p></div>
     </section>
