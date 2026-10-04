@@ -74,3 +74,14 @@ CCA Ocean is an explanatory research experience. The spatial scanner, feature gr
 ### Performance
 
 The renderer monitors frame rate in Auto mode and can reduce pixel ratio and expensive volumetric/particle layers. Visitors can also cycle rendering quality manually. Reduced-motion and mobile-specific presentation rules are included.
+
+
+## Optional local 3D reef assets
+
+The renderer now supports local Draco-compressed GLTF/GLB reef assets with procedural fallback. Place licensed/owned models at:
+
+- `assets/models/coral-branching.glb`
+- `assets/models/coral-massive.glb`
+- `assets/models/coral-plate.glb`
+
+Missing model files do not stop the experience; the procedural reef remains active. Do not add third-party models unless their licence permits redistribution in this public repository.
